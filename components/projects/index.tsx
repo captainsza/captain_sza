@@ -232,15 +232,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
             }}
             transition={{ duration: 0.4 }}
           >
-            {isHovered ? (
-              <video
-                autoPlay
-                muted
-                loop
-                className="w-full h-full object-cover"
-                src={project.previewVideo}
-              />
-            ) : (
+            { (
               <img
                 src={project.image}
                 alt={project.title}

@@ -50,7 +50,7 @@ export function HeroSectionComponent() {
 
 
         {/* CTA Button */}
-        <Link href="#about">
+        <Link href="#projects">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}

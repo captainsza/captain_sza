@@ -14,7 +14,7 @@ import AboutMeComponent from "@/components/AboutMe";
 import FuturisticStats from "@/components/stats";
 import FuturisticProjects from "@/components/projects";
 import FuturisticContact from "@/components/contact-me";
-import AnimatedSection from '@/components/animatedsection'; // Ensure correct casing
+import AnimatedSection from '@/components/animatedsection';
 import MusicPlayerButton from '@/components/music';
 
 interface NavLink {
@@ -23,9 +23,6 @@ interface NavLink {
   href: string;
   className?: string;
 }
-
-
-
 
 const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -42,7 +39,10 @@ const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     </motion.div>
   );
 };
+
 const Home: React.FC = () => {
+  // Add isClient state to handle hydration
+  const [isClient, setIsClient] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('home');
   
   const links: NavLink[] = [
@@ -83,7 +83,15 @@ const Home: React.FC = () => {
     },
   ];
 
+  // Set isClient to true once component mounts
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    // Only add scroll listener if we're in the browser
+    if (typeof window === 'undefined') return;
+
     const handleScroll = (): void => {
       const sections = document.querySelectorAll('section');
       let currentSection = '';
@@ -103,6 +111,20 @@ const Home: React.FC = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [activeSection]);
+
+  // Early return during SSR
+  if (!isClient) {
+    return (
+      <PageWrapper>
+        <div className="relative">
+          <section id="home">
+            <HeroSectionComponent />
+          </section>
+          {/* Render static content without interactive elements */}
+        </div>
+      </PageWrapper>
+    );
+  }
 
   return (
     <PageWrapper>
@@ -125,8 +147,9 @@ const Home: React.FC = () => {
             className: activeSection === link.href.slice(1) ? 'scale-110 text-primary' : ''
           }))}
         />
-<MusicPlayerButton />
-        <section id="home" >
+        <MusicPlayerButton />
+
+        <section id="home">
           <HeroSectionComponent />
         </section>
 

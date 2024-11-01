@@ -11,7 +11,7 @@ import {
   useTransform,
 } from "framer-motion";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 export const FloatingDock = ({
   items,
@@ -93,9 +93,19 @@ const FloatingDockDesktop = ({
   className?: string;
 }) => {
   const mouseX = useMotionValue(Infinity);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
   return (
     <motion.div
-      onMouseMove={(e) => mouseX.set(e.pageY)} // Track Y-axis for vertical layout
+      onMouseMove={(e) => mouseX.set(e.pageY)}
       onMouseLeave={() => mouseX.set(Infinity)}
       className={cn(
         "fixed top-1/2 right-4 transform -translate-y-1/2 hidden md:flex flex-col gap-4 items-center",
@@ -121,10 +131,10 @@ function IconContainer({
   href: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [hovered, setHovered] = useState(false);
 
   const distance = useTransform(mouseX, (val) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { y: 0, height: 0 };
-
     return val - bounds.y - bounds.height / 2;
   });
 
@@ -152,8 +162,6 @@ function IconContainer({
     stiffness: 150,
     damping: 12,
   });
-
-  const [hovered, setHovered] = useState(false);
 
   return (
     <Link href={href}>
@@ -187,31 +195,35 @@ function IconContainer({
   );
 }
 
-// Scroll Visibility Hook
 const useScrollVisibility = (delay: number = 3000) => {
   const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     setVisible(true);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
       setVisible(false);
     }, delay);
-  };
+  }, [delay]);
 
   useEffect(() => {
+    setMounted(true);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", handleScroll);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
-  }, [delay]);
+  }, [handleScroll]);
+
+  if (!mounted) {
+    return false;
+  }
 
   return visible;
 };
 
-// Enhanced FloatingDock with Scroll Visibility
 export const EnhancedFloatingDock = ({
   items,
   desktopClassName,
@@ -222,6 +234,15 @@ export const EnhancedFloatingDock = ({
   mobileClassName?: string;
 }) => {
   const visible = useScrollVisibility();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <AnimatePresence>

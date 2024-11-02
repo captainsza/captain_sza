@@ -7,6 +7,7 @@ import { motion, useAnimation, useScroll, useSpring, AnimatePresence } from 'fra
 import { ChevronDown, Terminal, Cpu, CircuitBoard, Wifi, Database, Globe, Code, Server } from 'lucide-react'
 import Link from 'next/link'
 import HyperText from './ui/hyper-text'
+import HeroWelcomeSection, { WelcomeAvatar } from './AboutMe/avatarhero'
 
 // Custom hook for mouse position tracking
 const useMousePosition = () => {
@@ -23,64 +24,6 @@ const useMousePosition = () => {
   return mousePosition
 }
 
-// Animated binary background component
-const BinaryRain = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
-
-    const fontSize = 14
-    const columns = canvas.width / fontSize
-    const drops: number[] = []
-
-    for (let i = 0; i < columns; i++) {
-      drops[i] = 1
-    }
-
-    const binary = '10'
-    let frameCount = 0
-
-    const draw = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-
-      ctx.fillStyle = '#0F0'
-      ctx.font = `${fontSize}px monospace`
-
-      for (let i = 0; i < drops.length; i++) {
-        const text = binary[Math.floor(Math.random() * binary.length)]
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize)
-
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0
-        }
-        drops[i]++
-      }
-      frameCount++
-      requestAnimationFrame(draw)
-    }
-
-    draw()
-
-    const handleResize = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-    }
-
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  return <canvas ref={canvasRef} className="absolute inset-0 opacity-20" />
-}
 
 // Interactive floating cube component
 const FloatingCube: React.FC<{ mousePosition: { x: number; y: number } }> = ({ mousePosition }) => {
@@ -168,7 +111,7 @@ export function HeroSectionComponent() {
       >
         <source src="/videos/coool.mp4" type="video/mp4" />
       </video>
-      <BinaryRain />
+
 
       {/* Interactive elements */}
       <FloatingCube mousePosition={mousePosition} />
@@ -237,7 +180,20 @@ export function HeroSectionComponent() {
         </motion.div>
       </div>
 
-
+      <div className="absolute left-0 bottom-0 p-4 lg:left-8 lg:bottom-8 z-20">
+        <WelcomeAvatar
+          imageUrl="/2.png"
+          size="lg"
+          welcomeMessage="Welcome to My Digital Universe!"
+          additionalInfo={{
+            title: "Quick Intro",
+            items: [
+              { label: "Name", value: "Zaid Ahmad" },
+  
+            ]
+          }}
+        />
+      </div>
     </div>
   )
 }

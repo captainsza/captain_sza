@@ -15,6 +15,7 @@ import AboutMeComponent from '../AboutMe';
 import FuturisticStats from '../stats';
 import FuturisticProjects from '../projects';
 import FuturisticContact from '../contact-me';
+import CircularProgress from '../CircularProgress';
 
 interface NavLink {
   title: string;
@@ -127,6 +128,7 @@ export const HomeComponent: React.FC = () => {
               }))}
             />
             <MusicPlayerButton />
+            <CircularProgress/>
           </>
         )}
 

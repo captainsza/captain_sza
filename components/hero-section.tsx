@@ -1,43 +1,190 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
+'use client'
 
-import React, { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { motion, useAnimation, useScroll, useSpring, AnimatePresence } from 'framer-motion'
+import { ChevronDown, Terminal, Cpu, CircuitBoard, Wifi, Database, Globe, Code, Server } from 'lucide-react'
 import Link from 'next/link'
 import HyperText from './ui/hyper-text'
 
-const keywords = ['About Me', 'Projects', 'Experience']
-
-export function HeroSectionComponent() {
-  const [currentKeyword, setCurrentKeyword] = useState(0)
+// Custom hook for mouse position tracking
+const useMousePosition = () => {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentKeyword((prev) => (prev + 1) % keywords.length)
-    }, 3000)
-    return () => clearInterval(interval)
+    const updateMousePosition = (ev: MouseEvent) => {
+      setMousePosition({ x: ev.clientX, y: ev.clientY })
+    }
+    window.addEventListener('mousemove', updateMousePosition)
+    return () => window.removeEventListener('mousemove', updateMousePosition)
   }, [])
+
+  return mousePosition
+}
+
+// Animated binary background component
+const BinaryRain = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+
+    const fontSize = 14
+    const columns = canvas.width / fontSize
+    const drops: number[] = []
+
+    for (let i = 0; i < columns; i++) {
+      drops[i] = 1
+    }
+
+    const binary = '10'
+    let frameCount = 0
+
+    const draw = () => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+      ctx.fillStyle = '#0F0'
+      ctx.font = `${fontSize}px monospace`
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = binary[Math.floor(Math.random() * binary.length)]
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize)
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0
+        }
+        drops[i]++
+      }
+      frameCount++
+      requestAnimationFrame(draw)
+    }
+
+    draw()
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth
+      canvas.height = window.innerHeight
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  return <canvas ref={canvasRef} className="absolute inset-0 opacity-20" />
+}
+
+// Interactive floating cube component
+const FloatingCube: React.FC<{ mousePosition: { x: number; y: number } }> = ({ mousePosition }) => {
+  return (
+    <div className="absolute right-10 top-20 h-40 w-40 transform-style-3d perspective-1000">
+      <motion.div
+        className="h-full w-full"
+        style={{
+          rotateX: mousePosition.y / 20,
+          rotateY: mousePosition.x / 20,
+          transformStyle: 'preserve-3d',
+        }}
+      >
+        {/* Cube faces */}
+        <div className="absolute h-full w-full transform bg-blue-500/20 backdrop-blur-sm" style={{ transform: 'translateZ(20px)' }} />
+        <div className="absolute h-full w-full transform bg-purple-500/20 backdrop-blur-sm" style={{ transform: 'rotateY(180deg) translateZ(20px)' }} />
+        <div className="absolute h-full w-full transform bg-pink-500/20 backdrop-blur-sm" style={{ transform: 'rotateY(-90deg) translateZ(20px)' }} />
+        <div className="absolute h-full w-full transform bg-blue-500/20 backdrop-blur-sm" style={{ transform: 'rotateY(90deg) translateZ(20px)' }} />
+        <div className="absolute h-full w-full transform bg-purple-500/20 backdrop-blur-sm" style={{ transform: 'rotateX(90deg) translateZ(20px)' }} />
+        <div className="absolute h-full w-full transform bg-pink-500/20 backdrop-blur-sm" style={{ transform: 'rotateX(-90deg) translateZ(20px)' }} />
+      </motion.div>
+    </div>
+  )
+}
+
+
+
+// Animated statistics component
+const StatisticsPanel = () => {
+  const stats = [
+    { label: 'Projects', value: 40, color: 'blue' },
+    { label: 'Experience', value: 1, unit: 'years', color: 'purple' },
+    { label: 'Technologies', value: 10, color: 'pink' },
+  ]
+
+  return (
+    <div className="absolute bottom-20 right-10 flex gap-4">
+      {stats.map(({ label, value, unit, color }) => (
+        <motion.div
+          key={label}
+          initial={{ y: 100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="group relative overflow-hidden rounded-lg bg-gradient-to-br from-black/50 to-black/30 p-4 backdrop-blur-md"
+        >
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+            initial={{ x: '-100%' }}
+            animate={{ x: '100%' }}
+            transition={{
+              repeat: Infinity,
+              duration: 2,
+              ease: 'linear',
+            }}
+          />
+          <div className="relative">
+            <motion.span
+              className="block text-2xl font-bold"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 2 }}
+            >
+              {value}
+              {unit && <span className="ml-1 text-sm">{unit}</span>}
+            </motion.span>
+            <span className="text-sm text-gray-400">{label}</span>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  )
+}
+
+// Main hero section component
+export function HeroSectionComponent() {
+  const mousePosition = useMousePosition()
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black text-white">
-      {/* Background Video */}
+      {/* Background elements */}
       <video
         autoPlay
         loop
         muted
-        className="absolute inset-0 h-full w-full object-cover opacity-50"
+        className="absolute inset-0 h-full w-full object-cover opacity-30"
       >
         <source src="/videos/coool.mp4" type="video/mp4" />
       </video>
+      <BinaryRain />
 
-      {/* Particle Effect Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black opacity-50" />
-      <ParticleEffect />
+      {/* Interactive elements */}
+      <FloatingCube mousePosition={mousePosition} />
 
-      {/* Content Container */}
+      <StatisticsPanel />
+
+      {/* Main content */}
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          className="text-center"
+        >
+          <div className=" relative mb-8 p-8">
+          <div
           
           className=" text-center text-4xl font-bold leading-tight tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl"
         >
@@ -47,48 +194,50 @@ export function HeroSectionComponent() {
           
 
         </div>
+            
+            {/* Animated subtitle */}
+            <motion.div
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="mt-4 font-mono text-blue-400"
+            >
+              <Terminal className="mr-2 inline-block h-4 w-4" />
+              <span className="typing-text">Exploring the Digital Frontier</span>
+            </motion.div>
+          </div>
 
+          {/* CTA section */}
+          <div className="mt-8 flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
+            <Link href="#projects">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="group relative overflow-hidden rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 px-8 py-3 text-lg font-semibold"
+              >
+                <span className="relative z-10">Explore My Universe</span>
+                <motion.div
+                  className="absolute inset-0 bg-white/20"
+                  initial={{ x: '-100%' }}
+                  whileHover={{ x: '100%' }}
+                  transition={{ duration: 0.5 }}
+                />
+              </motion.button>
+            </Link>
 
-        {/* CTA Button */}
-        <Link href="#projects">
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          
-          className="rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 px-8 py-3 text-lg font-semibold text-white shadow-lg transition-all hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-800"
-        >
-          Explore My Work
-        </motion.button>
-        </Link>
+            {/* Scroll indicator */}
+            <motion.div
+              animate={{ y: [0, 10, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="mt-8 cursor-pointer sm:mt-0"
+              onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+            >
+              <ChevronDown className="h-8 w-8 text-white/50" />
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
-    </div>
-  )
-}
 
-function ParticleEffect() {
-  return (
-    <div className="absolute inset-0">
-      {[...Array(50)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute h-1 w-1 rounded-full bg-blue-500"
-          initial={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            opacity: Math.random(),
-          }}
-          animate={{
-            x: Math.random() * window.innerWidth,
-            y: Math.random() * window.innerHeight,
-            opacity: [0, 1, 0],
-          }}
-          transition={{
-            duration: Math.random() * 10 + 10,
-            repeat: Infinity,
-            ease: 'linear',
-          }}
-        />
-      ))}
+
     </div>
   )
 }

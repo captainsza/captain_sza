@@ -14,8 +14,9 @@ import AnimatedSection from '../animatedsection';
 import AboutMeComponent from '../AboutMe';
 import FuturisticStats from '../stats';
 import FuturisticProjects from '../projects';
-import FuturisticContact from '../contact-me';
+
 import CircularProgress from '../CircularProgress';
+import TerminalContact from '../contact-me';
 
 interface NavLink {
   title: string;
@@ -149,7 +150,7 @@ export const HomeComponent: React.FC = () => {
         </AnimatedSection>
 
         <section id="contact-me">
-          <FuturisticContact />
+          <TerminalContact />
         </section>
       </motion.div>
     </PageWrapper>

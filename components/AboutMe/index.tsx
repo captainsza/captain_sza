@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { personalInfo } from './data';
 import { Cover } from '../ui/cover';
+import Avatar from './avatar';
 
 // Types for Skill and Personal Info
 interface Skill {
@@ -171,53 +172,6 @@ const SkillIcon: FC<Skill> = ({
   );
 };
 
-// Avatar Section Component
-const AvatarSection: FC<{ personalInfo: PersonalInfo }> = ({ personalInfo }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
-
-  return (
-    <motion.div
-      className="relative w-64 h-64 md:w-80 md:h-80 mx-auto group perspective-1000"
-      onMouseEnter={() => setIsFlipped(true)}
-      onMouseLeave={() => setIsFlipped(false)}
-    >
-      <motion.div
-        className={`absolute w-full h-full transition-transform duration-700 [transform-style:preserve-3d] ${
-          isFlipped ? '[transform:rotateY(180deg)]' : ''
-        }`}
-      >
-        {/* Front Side: Avatar */}
-        <div
-          className="absolute w-full h-full bg-cover bg-center rounded-full shadow-xl [backface-visibility:hidden]"
-          style={{
-            backgroundImage: `url(${personalInfo.avatarUrl})`,
-          }}
-        />
-
-        {/* Back Side: Highlights */}
-        <div
-          className="absolute w-full h-full bg-gray-900/90 rounded-full flex flex-col items-center justify-center [transform:rotateY(180deg)] [backface-visibility:hidden] p-6 text-center"
-        >
-          <h3 className="text-xl md:text-2xl font-bold text-blue-400">
-            Quick Facts
-          </h3>
-          <p className="mt-4 text-sm md:text-base text-gray-300">
-            <strong>Experience:</strong> {personalInfo.experienceYears} years
-          </p>
-          <p className="mt-2 text-sm md:text-base text-gray-300">
-            <strong>Interests:</strong> {personalInfo.interests.join(', ')}
-          </p>
-        </div>
-      </motion.div>
-
-      {/* Hover Glow Effect */}
-      <div
-        className="absolute -inset-2 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-50 blur-lg group-hover:opacity-75 transition-all duration-500"
-      />
-    </motion.div>
-  );
-};
-
 // Main About Me Component
 const AboutMeComponent: FC = () => {
  
@@ -239,13 +193,27 @@ const AboutMeComponent: FC = () => {
       <div className="container mx-auto px-4 py-16 grid md:grid-cols-2 gap-8 relative z-10">
         {/* Avatar Section */}
         <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: inView ? 1 : 0, x: inView ? 0 : -50 }}
-          transition={{ duration: 0.7 }}
-          ref={ref}
-        >
-          <AvatarSection personalInfo={personalInfo} />
-        </motion.div>
+  initial={{ opacity: 0, x: -50 }}
+  animate={{ opacity: inView ? 1 : 0, x: inView ? 0 : -50 }}
+  transition={{ duration: 0.7 }}
+  ref={ref}
+  className="md:ml-40"  // Add this line for shifting right on large screens
+>
+  <Avatar 
+    imageUrl={personalInfo.avatarUrl}
+    size="lg"
+    glowColor="from-blue-500 via-purple-500 to-pink-500"
+    highlights={{
+      title: "Profile Highlights",
+      items: [
+        { label: "Role", value: "Full-Stack Developer" },
+        { label: "Experience", value: "1+ years" },
+        { label: "Specialty", value: "Next.js & TypeScript" }
+      ]
+    }}
+  />
+</motion.div>
+
 
         {/* Content Section */}
         <motion.div

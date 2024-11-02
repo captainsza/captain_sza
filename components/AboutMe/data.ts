@@ -69,7 +69,7 @@ export const personalInfo: PersonalInfo = {
         ],
         interests: ['Quantum Computing', 'Sci-Fi Projects', 'AI Evolution'],
         experienceYears: 1,
-        avatarUrl: '/mebg.png',
+        avatarUrl: '/1.png',
     };
     interface Skill {
         id: string;

@@ -307,26 +307,36 @@ Email: zaidahmad.work@gmail.com
   };
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsSubmitting(true);
 
-    // Form validation
-    const newErrors: FormErrors = {};
-    if (!formData.name) newErrors.name = 'Name is required.';
-    if (!formData.email) newErrors.email = 'Email is required.';
-    if (!formData.subject) newErrors.subject = 'Subject is required.';
-    if (!formData.message) newErrors.message = 'Message is required.';
-    setErrors(newErrors);
+  // Form validation
+  const newErrors: FormErrors = {};
+  if (!formData.name) newErrors.name = 'Name is required.';
+  if (!formData.email) newErrors.email = 'Email is required.';
+  if (!formData.subject) newErrors.subject = 'Subject is required.';
+  if (!formData.message) newErrors.message = 'Message is required.';
+  setErrors(newErrors);
 
-    if (Object.keys(newErrors).length > 0) {
-      setIsSubmitting(false);
-      return;
-    }
+  if (Object.keys(newErrors).length > 0) {
+    setIsSubmitting(false);
+    return;
+  }
 
-    // Simulated form submission
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+  // API submission
+  try {
+    const response = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
       setIsSuccess(true);
       setTerminalHistory((prev) => [
         ...prev,
@@ -339,20 +349,24 @@ Email: zaidahmad.work@gmail.com
       setFormData({ name: '', email: '', subject: '', message: '' });
       setShowContactForm(false);
       setTimeout(() => setIsSuccess(false), 3000);
-    } catch (error) {
-      setTerminalHistory((prev) => [
-        ...prev,
-        {
-          command: 'submit_form',
-          output: 'Error sending message. Please try again.',
-          isError: true,
-          timestamp: new Date().toLocaleTimeString(),
-        },
-      ]);
-    } finally {
-      setIsSubmitting(false);
+    } else {
+      throw new Error(result.message || 'Failed to send message.');
     }
-  };
+  } catch (error) {
+    setTerminalHistory((prev) => [
+      ...prev,
+      {
+        command: 'submit_form',
+        output: (error instanceof Error ? error.message : 'Error sending message. Please try again.') || 'Error sending message. Please try again.',
+        isError: true,
+        timestamp: new Date().toLocaleTimeString(),
+      },
+    ]);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   // Render boot sequence
   if (bootSequence) {

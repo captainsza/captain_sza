@@ -189,6 +189,7 @@ export function HeroSectionComponent() {
             title: "Quick Intro",
             items: [
               { label: "Name", value: "Zaid Ahmad" },
+              {label:"Company", value:"Flexeere IT Sol PVT LTD"}
   
             ]
           }}

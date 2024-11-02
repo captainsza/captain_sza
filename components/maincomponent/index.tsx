@@ -78,27 +78,30 @@ export const HomeComponent: React.FC = () => {
 
   // Handle scroll effects only after mounting
   useEffect(() => {
-    if (!mounted) return;
-
-    const handleScroll = (): void => {
-      const sections = document.querySelectorAll('section');
-      let currentSection = '';
+        if (!mounted) return;
       
-      sections.forEach(section => {
-        const rect = section.getBoundingClientRect();
-        if (rect.top <= 150 && rect.bottom >= 150) {
-          currentSection = section.id;
-        }
-      });
+        const handleScroll = (): void => {
+          if (typeof window === 'undefined') return; // Add this check
       
-      if (currentSection !== activeSection) {
-        setActiveSection(currentSection);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [activeSection, mounted]);
+          const sections = document.querySelectorAll('section');
+          let currentSection = '';
+      
+          sections.forEach(section => {
+            const rect = section.getBoundingClientRect();
+            if (rect.top <= 150 && rect.bottom >= 150) {
+              currentSection = section.id;
+            }
+          });
+      
+          if (currentSection !== activeSection) {
+            setActiveSection(currentSection);
+          }
+        };
+      
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+      }, [activeSection, mounted]);
+      
 
   return (
     <PageWrapper>

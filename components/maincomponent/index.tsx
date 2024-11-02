@@ -2,7 +2,6 @@
 "use client"
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-
 import { GrProjects } from "react-icons/gr";
 import { GiNinjaHeroicStance } from "react-icons/gi";
 import { SiAboutdotme } from "react-icons/si";
@@ -16,7 +15,6 @@ import AboutMeComponent from '../AboutMe';
 import FuturisticStats from '../stats';
 import FuturisticProjects from '../projects';
 import FuturisticContact from '../contact-me';
-
 
 interface NavLink {
   title: string;
@@ -41,44 +39,46 @@ const PageWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-export const HomeComponent: React.FC = () => {
-  const [isClient, setIsClient] = useState(false);
-  const [activeSection, setActiveSection] = useState<string>('home');
-  
-  const links: NavLink[] = [
-    {
-      title: "Home",
-      icon: <GiNinjaHeroicStance className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#home",
-    },
-    {
-      title: "About Me",
-      icon: <SiAboutdotme className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#about",
-    },
-    {
-      title: "Stats",
-      icon: <ImStatsDots className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#stats",
-    },
-    {
-      title: "Projects",
-      icon: <GrProjects className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#projects",
-    },
-    {
-      title: "Contact Me",
-      icon: <MdContactEmergency className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-      href: "#contact-me",
-    },
-  ];
+const links: NavLink[] = [
+  {
+    title: "Home",
+    icon: <GiNinjaHeroicStance className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+    href: "#home",
+  },
+  {
+    title: "About Me",
+    icon: <SiAboutdotme className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+    href: "#about",
+  },
+  {
+    title: "Stats",
+    icon: <ImStatsDots className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+    href: "#stats",
+  },
+  {
+    title: "Projects",
+    icon: <GrProjects className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+    href: "#projects",
+  },
+  {
+    title: "Contact Me",
+    icon: <MdContactEmergency className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+    href: "#contact-me",
+  },
+];
 
+export const HomeComponent: React.FC = () => {
+  const [mounted, setMounted] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('home');
+
+  // Handle mounting
   useEffect(() => {
-    setIsClient(true);
+    setMounted(true);
   }, []);
 
+  // Handle scroll effects only after mounting
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (!mounted) return;
 
     const handleScroll = (): void => {
       const sections = document.querySelectorAll('section');
@@ -98,19 +98,7 @@ export const HomeComponent: React.FC = () => {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [activeSection]);
-
-  if (!isClient) {
-    return (
-      <PageWrapper>
-        <div className="relative">
-          <section id="home">
-            <HeroSectionComponent />
-          </section>
-        </div>
-      </PageWrapper>
-    );
-  }
+  }, [activeSection, mounted]);
 
   return (
     <PageWrapper>
@@ -125,15 +113,19 @@ export const HomeComponent: React.FC = () => {
         }}
         className="relative"
       >
-        <EnhancedFloatingDock
-          desktopClassName="bg-transparent backdrop-blur-sm"
-          mobileClassName="bg-transparent backdrop-blur-sm"
-          items={links.map(link => ({
-            ...link,
-            className: activeSection === link.href.slice(1) ? 'scale-110 text-primary' : ''
-          }))}
-        />
-        <MusicPlayerButton />
+        {mounted && (
+          <>
+            <EnhancedFloatingDock
+              desktopClassName="bg-transparent backdrop-blur-sm"
+              mobileClassName="bg-transparent backdrop-blur-sm"
+              items={links.map(link => ({
+                ...link,
+                className: activeSection === link.href.slice(1) ? 'scale-110 text-primary' : ''
+              }))}
+            />
+            <MusicPlayerButton />
+          </>
+        )}
 
         <section id="home">
           <HeroSectionComponent />

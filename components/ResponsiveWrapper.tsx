@@ -3,16 +3,23 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
+import { FaExclamationTriangle } from 'react-icons/fa';
 
 interface ResponsiveWrapperProps {
   children: React.ReactNode;
 }
 
-const MainContent = styled.div`
-  padding: 20px;
-  /* Add additional styles as needed */
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 `;
+
+
 
 const WarningContainer = styled.div`
   display: flex;
@@ -25,6 +32,14 @@ const WarningContainer = styled.div`
   font-size: 1.2em;
   background-color: #f8f9fa;
   color: #333;
+  animation: ${fadeIn} 0.5s ease-in-out;
+`;
+
+const WarningIcon = styled(FaExclamationTriangle)`
+  color: #ffcc00;
+  font-size: 3em;
+  margin-bottom: 20px;
+  animation: ${fadeIn} 0.5s ease-in-out;
 `;
 
 const ResponsiveWrapper: React.FC<ResponsiveWrapperProps> = ({ children }) => {
@@ -61,13 +76,14 @@ const ResponsiveWrapper: React.FC<ResponsiveWrapperProps> = ({ children }) => {
     <>
       {isMobile ? (
         <WarningContainer role="alert" aria-live="assertive">
+          <WarningIcon />
           <h1>Screen Too Small</h1>
           <p>
             This site is best viewed on a tablet or larger device. Please switch to desktop mode for the best experience.
           </p>
         </WarningContainer>
       ) : (
-        <MainContent>{children}</MainContent>
+        <>{children}</>
       )}
     </>
   );

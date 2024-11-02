@@ -34,7 +34,7 @@ const ResponsiveWrapper: React.FC<ResponsiveWrapperProps> = ({ children }) => {
     let resizeTimer: NodeJS.Timeout;
 
     const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      setIsMobile(window.innerWidth < 600);
     };
 
     const handleResize = () => {

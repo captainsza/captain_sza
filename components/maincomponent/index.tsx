@@ -14,9 +14,10 @@ import AnimatedSection from '../animatedsection';
 import AboutMeComponent from '../AboutMe';
 import FuturisticStats from '../stats';
 import FuturisticProjects from '../projects';
-
+import { GiJourney } from "react-icons/gi";
 import CircularProgress from '../CircularProgress';
 import TerminalContact from '../contact-me';
+import FuturisticJourney from '../journey';
 
 interface NavLink {
   title: string;
@@ -61,6 +62,11 @@ const links: NavLink[] = [
     title: "Projects",
     icon: <GrProjects className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
     href: "#projects",
+  },
+  {
+    title: "My Journey",
+    icon: <GiJourney className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
+    href: "#my-journey",
   },
   {
     title: "Contact Me",
@@ -137,7 +143,7 @@ export const HomeComponent: React.FC = () => {
           <HeroSectionComponent />
         </section>
 
-        <AnimatedSection id="about" index={1}>
+        <AnimatedSection id="about" index={2}>
           <AboutMeComponent />
         </AnimatedSection>
 
@@ -145,10 +151,13 @@ export const HomeComponent: React.FC = () => {
           <FuturisticStats />
         </section>
 
-        <AnimatedSection id="projects" index={3}>
+        <AnimatedSection id="projects" index={4}>
           <FuturisticProjects />
         </AnimatedSection>
 
+        <section id="my-journey">
+          <FuturisticJourney />
+        </section>
         <section id="contact-me">
           <TerminalContact />
         </section>

@@ -29,7 +29,7 @@ export const projects: Project[] = [
           id: '3',
           title: 'AiroMap',
           description: 'An air quality monitoring application providing real-time air pollution data using IQAir API and location services.',
-          image: 'https://drive.google.com/file/d/1DaLwAWst7BFcssxnmmakJSG_TsciWvH6/view?usp=sharing',
+          image: '/projects/6.png',
           previewVideo: '/videos/airomap.mp4',
           technologies: ['React Native', 'Express', 'MongoDB', 'Google SDKs'],
           progress: 100,

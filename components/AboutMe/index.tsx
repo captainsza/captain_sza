@@ -1,273 +1,354 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
-
 import React, { useState, useEffect, useRef, FC } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { personalInfo } from './data';
 import { Cover } from '../ui/cover';
 import Avatar from './avatar';
+import { IconType } from 'react-icons';
+import { FaArrowRight } from 'react-icons/fa';
 
-// Types for Skill and Personal Info
+// Enhanced TypeScript interfaces
 interface Skill {
   id: string;
-  icon: React.ElementType;
+  icon: IconType;
+  name: string;
+  description: string;
+  proficiency: number;
+  category?: string;
+}
+
+
+// Neural Network Background Animation
+const NeuralNetworkBackground: FC = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    const nodes: { x: number; y: number; vx: number; vy: number }[] = [];
+    const connections: { a: number; b: number }[] = [];
+    let animationFrame: number;
+    
+    const initNodes = () => {
+      const nodeCount = Math.floor(window.innerWidth / 50);
+      for (let i = 0; i < nodeCount; i++) {
+        nodes.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5
+        });
+      }
+      
+      // Create connections
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          if (Math.random() < 0.1) {
+            connections.push({ a: i, b: j });
+          }
+        }
+      }
+    };
+    
+    const animate = () => {
+      if (!ctx) return;
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Update nodes
+      nodes.forEach(node => {
+        node.x += node.vx;
+        node.y += node.vy;
+        
+        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+      });
+      
+      // Draw connections
+      connections.forEach(({ a, b }) => {
+        const nodeA = nodes[a];
+        const nodeB = nodes[b];
+        const distance = Math.hypot(nodeA.x - nodeB.x, nodeA.y - nodeB.y);
+        
+        if (distance < 200) {
+          ctx.beginPath();
+          ctx.moveTo(nodeA.x, nodeA.y);
+          ctx.lineTo(nodeB.x, nodeB.y);
+          ctx.strokeStyle = `rgba(64, 169, 255, ${1 - distance / 200})`;
+          ctx.stroke();
+        }
+      });
+      
+      // Draw nodes
+      nodes.forEach(node => {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(64, 169, 255, 0.8)';
+        ctx.fill();
+      });
+      
+      animationFrame = requestAnimationFrame(animate);
+    };
+    
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      nodes.length = 0;
+      connections.length = 0;
+      initNodes();
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    animate();
+    
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 z-[-1] opacity-40"
+    />
+  );
+};
+
+interface Skill {
+  id: string;
+  icon: IconType;
   name: string;
   description: string;
   proficiency: number;
 }
 
-interface PersonalInfo {
-  name: string;
-  title: string;
-  summary: string;
-  skills: Skill[];
-  interests: string[];
-  experienceYears: number;
-  avatarUrl: string;
-}
-
-// Particle Background Component
-const ParticleBackground: FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    let animationFrameId: number;
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    if (!canvas || !ctx) return;
-
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
-
-    const particles: {
-      x: number;
-      y: number;
-      z: number;
-      o: number;
-    }[] = [];
-
-    const initParticles = () => {
-      for (let i = 0; i < 150; i++) {
-        particles.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          z: Math.random() * width,
-          o: Math.random() * 0.5 + 0.5,
-        });
-      }
-    };
-
-    const animate = () => {
-      if (!ctx) return;
-
-      ctx.clearRect(0, 0, width, height);
-
-      particles.forEach(particle => {
-        particle.z -= 2;
-        if (particle.z <= 0) {
-          particle.z = width;
-        }
-
-        const k = 128.0 / particle.z;
-        const px = particle.x * k + width / 2;
-        const py = particle.y * k + height / 2;
-
-        if (px >= 0 && px <= width && py >= 0 && py <= height) {
-          const size = (1 - particle.z / width) * 3;
-          ctx.beginPath();
-          ctx.arc(px, py, size, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 255, 255, ${particle.o})`;
-          ctx.fill();
-        }
-      });
-
-      animationFrameId = requestAnimationFrame(animate);
-    };
-
-    initParticles();
-    animate();
-
-    const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 z-[-1] opacity-30"
-    />
-  );
-};
-
-// Video Background Component
-const VideoBackground: FC = () => (
-  <video
-    autoPlay
-    loop
-    muted
-    playsInline
-    className="fixed inset-0 w-full h-full object-cover z-[-2]"
-  >
-    <source src="/videos/bg2.mp4" type="video/mp4" />
-    Your browser does not support the video tag.
-  </video>
-);
-
-// Skill Icon Component
-const SkillIcon: FC<Skill> = ({
+const SkillCard: FC<Skill & { index: number }> = ({
   icon: Icon,
   name,
   description,
   proficiency,
+  index
 }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
-      className="relative w-24 h-24 md:w-32 md:h-32 perspective-1000"
-      whileHover={{ scale: 1.1 }}
-      onMouseEnter={() => setIsFlipped(true)}
-      onMouseLeave={() => setIsFlipped(false)}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
     >
       <motion.div
-        className={`absolute w-full h-full transition-transform duration-500 [transform-style:preserve-3d] ${
-          isFlipped ? '[transform:rotateY(180deg)]' : ''
-        }`}
+        className="group w-full h-36 bg-gray-800/90 rounded-lg border border-blue-500/20 p-4"
+        onHoverStart={() => setIsHovered(true)}
+        onHoverEnd={() => setIsHovered(false)}
+        whileHover={{ scale: 1.02, y: -2 }}
       >
-        {/* Front Side */}
-        <div className="absolute w-full h-full bg-gray-800/60 rounded-xl flex items-center justify-center [backface-visibility:hidden] backdrop-blur-sm border border-blue-500/30 shadow-lg">
-          <Icon className="text-4xl md:text-5xl text-blue-400 drop-shadow-[0_0_15px_rgba(96,165,250,0.7)]" />
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-blue-500/10 rounded-md">
+            <Icon className="text-xl text-blue-400" />
+          </div>
+          <div>
+            <h3 className="text-base font-medium text-white">{name}</h3>
+            <p className="text-xs text-gray-400">{description}</p>
+          </div>
         </div>
 
-        {/* Back Side */}
-        <div
-          className={`absolute w-full h-full bg-gray-900/90 rounded-xl flex flex-col items-center justify-center [transform:rotateY(180deg)] [backface-visibility:hidden] p-2 text-center ${
-            isFlipped ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
-          <p className="text-sm md:text-base font-bold text-blue-300">
-            {name}
-          </p>
-          <div className="w-full bg-gray-700 h-2 mt-2 rounded-full overflow-hidden">
-            <div
-              className="bg-blue-500 h-full"
-              style={{ width: `${proficiency}%` }}
+        <div className="mt-auto">
+          <div className="flex justify-between text-xs text-gray-400 mb-1">
+            <span>Proficiency</span>
+            <span>{proficiency}%</span>
+          </div>
+          <div className="h-1.5 bg-gray-700/50 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-gradient-to-r from-blue-400 to-purple-400"
+              initial={{ width: 0 }}
+              animate={{ width: `${proficiency}%` }}
+              transition={{ duration: 0.8 }}
             />
           </div>
-          <p className="text-xs md:text-sm mt-1 text-gray-300">
-            {description}
-          </p>
         </div>
       </motion.div>
     </motion.div>
   );
 };
 
-// Main About Me Component
+// Main About Component
 const AboutMeComponent: FC = () => {
- 
-
-  const { ref, inView } = useInView({
-    triggerOnce: true,
+  const controls = useAnimation();
+  const [ref, inView] = useInView({
     threshold: 0.1,
   });
 
+  useEffect(() => {
+    if (inView) {
+      controls.start('visible');
+    }
+  }, [controls, inView]);
+
   return (
-    <div className="min-h-screen text-white relative overflow-hidden">
-      {/* Video Background */}
-      <VideoBackground />
+    <div className="min-h-screen relative overflow-hidden bg-gray-900">
+      {/* Background Elements */}
+      <NeuralNetworkBackground />
+      
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-900/50 to-gray-900" />
 
-      {/* Particle Background */}
-      <ParticleBackground />
-
-      {/* Main Container */}
-      <div className="container mx-auto px-4 py-16 grid md:grid-cols-2 gap-8 relative z-10">
-        {/* Avatar Section */}
-        <motion.div
-  initial={{ opacity: 0, x: -50 }}
-  animate={{ opacity: inView ? 1 : 0, x: inView ? 0 : -50 }}
-  transition={{ duration: 0.7 }}
-  ref={ref}
-  className="md:ml-40"  // Add this line for shifting right on large screens
->
-  <Avatar 
-    imageUrl={personalInfo.avatarUrl}
-    size="lg"
-    glowColor="from-blue-500 via-purple-500 to-pink-500"
-    highlights={{
-      title: "Profile Highlights",
-      items: [
-        { label: "Role", value: "Full-Stack Developer" },
-        { label: "Experience", value: "1+ years" },
-        { label: "Specialty", value: "Next.js & TypeScript" }
-      ]
-    }}
-  />
-</motion.div>
-
-
-        {/* Content Section */}
-        <motion.div
-          className="flex flex-col justify-center"
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: inView ? 1 : 0, x: inView ? 0 : 50 }}
-          transition={{ duration: 0.7 }}
-        >
-          {/* Dynamic Header */}
-          <motion.h1
-            className="text-4xl md:text-5xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600 animate-pulse"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            About Me
-          </motion.h1>
-
-          {/* Subtitle */}
-          <h2 className="text-2xl md:text-3xl font-semibold text-gray-200 mb-4">
-            {personalInfo.name}
-          </h2>
-          <h3 className="text-xl relative z-20 py-6 bg-clip-text text-transparent bg-gradient-to-b from-neutral-800 via-neutral-700 to-neutral-700  ">
-          <Cover>{personalInfo.title}</Cover>
-            
-          </h3>
-
-          {/* Summary with Scroll Animations */}
-          <motion.p
-            className="text-gray-400 mb-6 leading-relaxed"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 20 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-          >
-            {personalInfo.summary}
-          </motion.p>
-
-          {/* Skills Grid */}
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-24 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          {/* Left Column - Avatar */}
           <motion.div
-            className="grid grid-cols-2 md:grid-cols-3 gap-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: inView ? 1 : 0 }}
-            transition={{ duration: 0.7, delay: 0.4 }}
+            ref={ref}
+            initial="hidden"
+            animate={controls}
+            variants={{
+              visible: { opacity: 1, x: 0 },
+              hidden: { opacity: 0, x: -100 }
+            }}
+            className="relative"
           >
-            {personalInfo.skills.map(skill => (
-              <SkillIcon key={skill.id} {...skill} />
-            ))}
-          </motion.div>
-        </motion.div>
-      </div>
+                        <div className="relative z-10 w-full flex justify-end">
+              <Avatar
+                imageUrl={personalInfo.avatarUrl}
+                size="lg"
+                glowColor="from-blue-500 via-purple-500 to-pink-500"
+                highlights={{
+                  title: "Profile Highlights",
+                  items: [
+                    { label: "Role", value: "Full-Stack Developer" },
+                    { label: "Experience", value: `${personalInfo.experienceYears}+ years` },
+                    { label: "Specialty", value: "Next.js & TypeScript" }
+                  ]
+                }}
+              />
+            </div>
 
-      {/* Ambient Particles */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Add any additional ambient particle effects here */}
+            {/* Decorative elements */}
+            <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-full blur-3xl" />
+          </motion.div>
+
+          {/* Right Column - Content */}
+          <motion.div
+            initial="hidden"
+            animate={controls}
+            variants={{
+              visible: { opacity: 1, x: 0 },
+              hidden: { opacity: 0, x: 100 }
+            }}
+            className="space-y-8"
+          >
+            {/* Header Section */}
+            <div className="space-y-4">
+              <motion.h1
+                className="text-5xl md:text-6xl font-bold"
+                variants={{
+                  visible: { opacity: 1, y: 0 },
+                  hidden: { opacity: 0, y: 50 }
+                }}
+              >
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+                  About Me
+                </span>
+              </motion.h1>
+
+              <motion.h2
+                className="text-2xl md:text-3xl text-gray-200 font-semibold"
+                variants={{
+                  visible: { opacity: 1, y: 0 },
+                  hidden: { opacity: 0, y: 30 }
+                }}
+              >
+                {personalInfo.name}
+              </motion.h2>
+
+              <motion.h3
+                className="text-xl text-gray-400"
+                variants={{
+                  visible: { opacity: 1, y: 0 },
+                  hidden: { opacity: 0, y: 20 }
+                }}
+              >
+                <Cover>{personalInfo.title}</Cover>
+              </motion.h3>
+            </div>
+
+            {/* Summary Section */}
+            <motion.p
+              className="text-gray-300 text-lg leading-relaxed"
+              variants={{
+                visible: { opacity: 1, y: 0 },
+                hidden: { opacity: 0, y: 20 }
+              }}
+            >
+              {personalInfo.summary}
+            </motion.p>
+
+            {/* Interests Section */}
+            <motion.div
+              className="space-y-4"
+              variants={{
+                visible: { opacity: 1, y: 0 },
+                hidden: { opacity: 0, y: 20 }
+              }}
+            >
+              <h4 className="text-xl font-semibold text-gray-200">Interests</h4>
+              <div className="flex flex-wrap gap-3">
+                {personalInfo.interests.map((interest, index) => (
+                  <motion.span
+                    key={interest}
+                    className="px-4 py-2 bg-blue-500/10 rounded-full text-blue-400 border border-blue-500/20"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    {interest}
+                  </motion.span>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Skills Section */}
+                <motion.div
+          className="mt-16" // Reduced top margin
+          initial="hidden"
+          animate={controls}
+          variants={{
+            visible: {
+              opacity: 1,
+              y: 0,
+              transition: {
+                duration: 0.6,
+                staggerChildren: 0.1
+              }
+            },
+            hidden: { opacity: 0, y: 30 } // Reduced y offset
+          }}
+        >
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8"> {/* Reduced text size and margin */}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+              Technical Expertise
+            </span>
+          </h2>
+        
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"> {/* Reduced gap, removed xl breakpoint */}
+            {personalInfo.skills.map((skill, index) => (
+              <SkillCard key={skill.id} {...skill} index={index} />
+            ))}
+          </div>
+        </motion.div>
       </div>
     </div>
   );

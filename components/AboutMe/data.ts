@@ -5,6 +5,8 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { RiTailwindCssFill } from "react-icons/ri";
 
+import { IconType } from 'react-icons';
+
 export const personalInfo: PersonalInfo = {
         name: 'Zaid Ahmad',
         title: 'Full Stack Developer & AI Enthusiast',
@@ -15,7 +17,7 @@ export const personalInfo: PersonalInfo = {
             icon: FaReact, // assuming a placeholder icon, since there’s no Next.js icon in FaReact
             name: 'Next.js',
             description: 'Full-Stack Framework',
-            proficiency: 90,
+            proficiency: 95,
           },
           {
             id: 'typescript',
@@ -36,21 +38,21 @@ export const personalInfo: PersonalInfo = {
             icon: FaNodeJs,
             name: 'Node.js',
             description: 'Backend Development',
-            proficiency: 80,
+            proficiency: 90,
           },
           {
             id: 'flutter',
             icon: SiFlutter,
             name: 'Flutter',
             description: 'Cross-Platform Development',
-            proficiency: 75,
+            proficiency: 65,
           },
           {
             id: 'mongodb',
             icon: SiMongodb,
             name: 'MongoDB',
             description: 'NoSQL Database',
-            proficiency: 80,
+            proficiency: 90,
           },
           {
             id: 'prisma',
@@ -66,6 +68,13 @@ export const personalInfo: PersonalInfo = {
             description: ' CSS framework',
             proficiency: 85,
           },
+          {
+            id: 'React Native',
+            icon: FaReact,
+            name: 'React Native',
+            description: 'Cross-Platform Development',
+            proficiency: 85,
+          },
         ],
         interests: ['Quantum Computing', 'Sci-Fi Projects', 'AI Evolution'],
         experienceYears: 1,
@@ -73,7 +82,7 @@ export const personalInfo: PersonalInfo = {
     };
     interface Skill {
         id: string;
-        icon: React.ElementType;
+        icon: IconType;
         name: string;
         description: string;
         proficiency: number;
@@ -89,4 +98,6 @@ export const personalInfo: PersonalInfo = {
         experienceYears: number;
         avatarUrl: string;
       }
+
+
       

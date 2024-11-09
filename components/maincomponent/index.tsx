@@ -143,17 +143,17 @@ export const HomeComponent: React.FC = () => {
           <HeroSectionComponent />
         </section>
 
-        <AnimatedSection id="about" index={2}>
+        <section id="about">
           <AboutMeComponent />
-        </AnimatedSection>
+        </section>
 
         <section id="stats">
           <FuturisticStats />
         </section>
 
-        <AnimatedSection id="projects" index={4}>
+        <section id="projects">
           <FuturisticProjects />
-        </AnimatedSection>
+        </section>
 
         <section id="my-journey">
           <FuturisticJourney />

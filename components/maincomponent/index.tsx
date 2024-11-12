@@ -10,7 +10,6 @@ import { MdContactEmergency } from "react-icons/md";
 import { HeroSectionComponent } from '../hero-section';
 import { EnhancedFloatingDock } from '../ui/floating-dock';
 import MusicPlayerButton from '../music';
-import AnimatedSection from '../animatedsection';
 import AboutMeComponent from '../AboutMe';
 import FuturisticStats from '../stats';
 import FuturisticProjects from '../projects';
@@ -18,6 +17,7 @@ import { GiJourney } from "react-icons/gi";
 import CircularProgress from '../CircularProgress';
 import TerminalContact from '../contact-me';
 import FuturisticJourney from '../journey';
+import { TransitionWrapper } from '../animatedsection';
 
 interface NavLink {
   title: string;
@@ -78,38 +78,39 @@ const links: NavLink[] = [
 export const HomeComponent: React.FC = () => {
   const [mounted, setMounted] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('home');
+  const [nextSection, setNextSection] = useState<string>('');
 
-  // Handle mounting
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Handle scroll effects only after mounting
   useEffect(() => {
-        if (!mounted) return;
-      
-        const handleScroll = (): void => {
-          if (typeof window === 'undefined') return; // Add this check
-      
-          const sections = document.querySelectorAll('section');
-          let currentSection = '';
-      
-          sections.forEach(section => {
-            const rect = section.getBoundingClientRect();
-            if (rect.top <= 150 && rect.bottom >= 150) {
-              currentSection = section.id;
-            }
-          });
-      
-          if (currentSection !== activeSection) {
-            setActiveSection(currentSection);
-          }
-        };
-      
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-      }, [activeSection, mounted]);
-      
+    if (!mounted) return;
+
+    const handleScroll = (): void => {
+      if (typeof window === 'undefined') return;
+
+      const sections = document.querySelectorAll('section');
+      let currentSection = '';
+      let nextSectionId = '';
+
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 150 && rect.bottom >= 150) {
+          currentSection = section.id;
+          nextSectionId = sections[index + 1]?.id || '';
+        }
+      });
+
+      if (currentSection !== activeSection) {
+        setActiveSection(currentSection);
+        setNextSection(nextSectionId);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [activeSection, mounted]);
 
   return (
     <PageWrapper>
@@ -136,31 +137,70 @@ export const HomeComponent: React.FC = () => {
             />
             <MusicPlayerButton />
             <CircularProgress/>
+            
           </>
         )}
 
-        <section id="home">
-          <HeroSectionComponent />
-        </section>
+        <TransitionWrapper 
+          sectionId="home" 
+          activeSection={activeSection}
+          nextSection={nextSection}
+        >
+          <section id="home">
+            <HeroSectionComponent />
+          
+          </section>
+        </TransitionWrapper>
+        
+        <TransitionWrapper 
+          sectionId="about"
+          activeSection={activeSection}
+          nextSection={nextSection}
+        >
+          <section id="about">
+            <AboutMeComponent />
+          </section>
+        </TransitionWrapper>
 
-        <section id="about">
-          <AboutMeComponent />
-        </section>
+        <TransitionWrapper 
+          sectionId="stats"
+          activeSection={activeSection}
+          nextSection={nextSection}
+        >
+          <section id="stats">
+            <FuturisticStats />
+          </section>
+        </TransitionWrapper>
 
-        <section id="stats">
-          <FuturisticStats />
-        </section>
+        <TransitionWrapper 
+          sectionId="projects"
+          activeSection={activeSection}
+          nextSection={nextSection}
+        >
+          <section id="projects">
+            <FuturisticProjects />
+          </section>
+        </TransitionWrapper>
 
-        <section id="projects">
-          <FuturisticProjects />
-        </section>
+        <TransitionWrapper 
+          sectionId="my-journey"
+          activeSection={activeSection}
+          nextSection={nextSection}
+        >
+          <section id="my-journey">
+            <FuturisticJourney />
+          </section>
+        </TransitionWrapper>
 
-        <section id="my-journey">
-          <FuturisticJourney />
-        </section>
-        <section id="contact-me">
-          <TerminalContact />
-        </section>
+        <TransitionWrapper 
+          sectionId="contact-me"
+          activeSection={activeSection}
+          nextSection={nextSection}
+        >
+          <section id="contact-me">
+            <TerminalContact />
+          </section>
+        </TransitionWrapper>
       </motion.div>
     </PageWrapper>
   );

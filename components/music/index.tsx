@@ -173,7 +173,7 @@ const MusicPlayerButton = () => {
       className={`fixed z-50 ${
         isFullscreen 
           ? "inset-0 bg-black/90 backdrop-blur-xl" 
-          : "top-6 right-6"
+          : "top-4 right-4 sm:top-6 sm:right-6"
       }`}
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
@@ -182,31 +182,47 @@ const MusicPlayerButton = () => {
       <motion.div
         className={`
           relative flex items-center
-          ${isExpanded ? 'bg-black/30 backdrop-blur-lg rounded-full p-2' : ''}
+          ${isExpanded ? 'bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl p-2' : ''}
           ${isFullscreen ? 'h-full flex-col justify-center items-center' : ''}
+          ${!isFullscreen && isExpanded ? 'max-w-[95vw] sm:max-w-md' : ''}
         `}
         animate={{ 
-          width: isExpanded ? (isFullscreen ? '100%' : 'auto') : '48px',
+          width: isExpanded ? (isFullscreen ? '100%' : 'auto') : '40px',
           height: isFullscreen ? '100%' : 'auto'
         }}
       >
         <motion.button
           className={`
-            relative w-12 h-12 rounded-full
+            relative overflow-hidden
+            ${isFullscreen ? 'w-32 h-32 sm:w-40 sm:h-40' : 'w-10 h-10 sm:w-12 sm:h-12'}
+            rounded-2xl sm:rounded-xl
             bg-gradient-to-r from-violet-600 to-indigo-600
             flex items-center justify-center
             shadow-lg shadow-violet-600/20
             hover:shadow-violet-600/40
             transition-shadow duration-300
+            group
             ${isPlaying ? 'animate-pulse' : ''}
-            ${isFullscreen ? 'w-32 h-32' : ''}
           `}
           onClick={() => !isFullscreen && setIsExpanded(!isExpanded)}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <Music className={`${isFullscreen ? 'w-16 h-16' : 'w-6 h-6'} text-white`} />
-          {isPlaying && <AudioVisualizer analyser={analyser} isPlaying={isPlaying} isFullscreen={isFullscreen} />}
+          <Music className={`
+            ${isFullscreen ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-5 h-5 sm:w-6 sm:h-6'} 
+            text-white relative z-10
+          `} />
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-violet-600/50 to-indigo-600/50"
+            animate={{
+              rotate: isPlaying ? 360 : 0,
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          />
         </motion.button>
 
         <AnimatePresence>
@@ -214,79 +230,116 @@ const MusicPlayerButton = () => {
             <motion.div
               className={`
                 flex items-center gap-2 ml-2
-                ${isFullscreen ? 'flex-col mt-8' : ''}
+                ${isFullscreen ? 'flex-col mt-8 w-full max-w-2xl' : ''}
+                ${!isFullscreen ? 'max-w-[calc(100vw-120px)] sm:max-w-md overflow-x-auto' : ''}
               `}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.2 }}
             >
-              <div className={`flex items-center gap-2 ${isFullscreen ? 'flex-col' : ''}`}>
-                <button
+              {/* Control buttons with hover effects */}
+              <div className={`
+                flex items-center gap-1 sm:gap-2
+                ${isFullscreen ? 'flex-col sm:flex-row justify-center w-full' : ''}
+              `}>
+                {/* Update existing control buttons with new styling */}
+                <motion.button
                   onClick={() => setIsFullscreen(!isFullscreen)}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors relative group"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
                   {isFullscreen ? (
-                    <Minimize2 className="w-5 h-5 text-white" />
+                    <Minimize2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   ) : (
-                    <Maximize2 className="w-5 h-5 text-white" />
+                    <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   )}
-                </button>
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.button>
 
-                <button
+                {/* Add similar styling to other control buttons */}
+                <motion.button
                   onClick={() => setIsShuffled(!isShuffled)}
-                  className={`p-2 hover:bg-white/10 rounded-full transition-colors ${
+                  className={`p-2 hover:bg-white/10 rounded-lg transition-colors relative group ${
                     isShuffled ? 'bg-violet-600' : ''
                   }`}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
-                  <Shuffle className="w-5 h-5 text-white" />
-                </button>
+                  <Shuffle className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.button>
 
-                <button
+                <motion.button
                   onClick={handlePrev}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors relative group"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
-                  <SkipBack className="w-5 h-5 text-white" />
-                </button>
+                  <SkipBack className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.button>
 
-                <button
+                <motion.button
                   onClick={handlePlayPause}
                   className={`
-                    p-2 hover:bg-white/10 rounded-full transition-colors
+                    p-2 hover:bg-white/10 rounded-lg transition-colors relative group
                     ${isFullscreen ? 'bg-violet-600 p-8' : ''}
                   `}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
                   {isPlaying ? (
-                    <Pause className={`${isFullscreen ? 'w-8 h-8' : 'w-5 h-5'} text-white`} />
+                    <Pause className={`${isFullscreen ? 'w-8 h-8' : 'w-4 h-4 sm:w-5 sm:h-5'} text-white`} />
                   ) : (
-                    <Play className={`${isFullscreen ? 'w-8 h-8' : 'w-5 h-5'} text-white`} />
+                    <Play className={`${isFullscreen ? 'w-8 h-8' : 'w-4 h-4 sm:w-5 sm:h-5'} text-white`} />
                   )}
-                </button>
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.button>
 
-                <button
+                <motion.button
                   onClick={handleNext}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors relative group"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
-                  <SkipForward className="w-5 h-5 text-white" />
-                </button>
+                  <SkipForward className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.button>
 
-                <button
+                <motion.button
                   onClick={() => setIsRepeating(!isRepeating)}
-                  className={`p-2 hover:bg-white/10 rounded-full transition-colors ${
+                  className={`p-2 hover:bg-white/10 rounded-lg transition-colors relative group ${
                     isRepeating ? 'bg-violet-600' : ''
                   }`}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                 >
-                  <Repeat className="w-5 h-5 text-white" />
-                </button>
+                  <Repeat className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-violet-600/20 to-indigo-600/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                </motion.button>
               </div>
 
               {isFullscreen && (
-                <div className="mt-8 text-center">
+                <motion.div 
+                  className="mt-8 text-center w-full"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
                   <motion.h2 
-                    className="text-2xl font-bold text-white mb-2"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
+                    className="text-2xl sm:text-3xl font-bold text-white mb-2"
+                    animate={{
+                      background: [
+                        'linear-gradient(to right, #8b5cf6, #6366f1)',
+                        'linear-gradient(to right, #6366f1, #8b5cf6)',
+                      ],
+                      backgroundClip: 'text',
+                      WebkitBackgroundClip: 'text',
+                      color: 'transparent',
+                    }}
+                    transition={{ duration: 2, repeat: Infinity }}
                   >
                     {playlist[currentSong].title}
                   </motion.h2>
@@ -298,7 +351,7 @@ const MusicPlayerButton = () => {
                   >
                     {playlist[currentSong].artist}
                   </motion.p>
-                </div>
+                </motion.div>
               )}
 
               <div className={`
@@ -306,73 +359,45 @@ const MusicPlayerButton = () => {
                 ${isFullscreen ? 'flex-col mt-8 w-full max-w-md' : ''}
               `}>
                 {!isFullscreen && (
-                  <button
+                  <motion.button
                     onClick={handleMute}
-                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="p-1 sm:p-2 hover:bg-white/10 rounded-lg transition-colors"
                   >
                     {isMuted ? (
-                      <VolumeX className="w-5 h-5 text-white" />
+                      <VolumeX className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     ) : (
-                      <Volume2 className="w-5 h-5 text-white" />
+                      <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     )}
-                  </button>
+                  </motion.button>
                 )}
-
-                {isFullscreen && (
-                  <div className="w-full px-4">
-                    <div 
-                      className="w-full h-1 bg-white/20 rounded-full cursor-pointer mb-2"
-                      onClick={handleProgressClick}
-                      ref={progressRef}
-                    >
-                      <div 
-                        className="h-full bg-violet-600 rounded-full relative"
-                        style={{ width: `${(currentTime / duration) * 100}%` }}
-                      >
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg" />
-                      </div>
-                    </div>
-                    <div className="flex justify-between text-sm text-white/60">
-                      <span>{formatTime(currentTime)}</span>
-                      <span>{formatTime(duration)}</span>
-                    </div>
-                  </div>
-                )}
-
-                <div className={`
-                  flex items-center gap-2
-                  ${isFullscreen ? 'w-full px-4 mt-4' : ''}
-                `}>
-                  {isFullscreen && (
-                    <Volume2 className="w-5 h-5 text-white" />
-                  )}
-                  <div className={`${isFullscreen ? 'w-full' : 'w-24'}`}>
-                    <Slider
-                      defaultValue={[1]}
-                      max={1}
-                      step={0.01}
-                      onValueChange={handleVolumeChange}
-                    />
-                  </div>
-                </div>
-
-                {!isFullscreen && (
-                  <div className="max-w-[150px] overflow-hidden">
-                    <motion.p
-                      className="text-sm text-white whitespace-nowrap"
-                      initial={{ x: 50 }}
-                      animate={{ x: -100 }}
-                      transition={{
-                        duration: 5,
-                        repeat: Infinity,
-                        repeatType: "loop",
-                      }}
-                    >
-                      {playlist[currentSong].title} - {playlist[currentSong].artist}
-                    </motion.p>
-                  </div>
-                )}
+                
+                <Slider
+                  defaultValue={[1]}
+                  max={1}
+                  step={0.01}
+                  onValueChange={handleVolumeChange}
+                  className="w-full"
+                />
               </div>
+
+              {!isFullscreen && (
+                <div className="max-w-[150px] overflow-hidden">
+                  <motion.p
+                    className="text-sm text-white whitespace-nowrap"
+                    initial={{ x: 50 }}
+                    animate={{ x: -100 }}
+                    transition={{
+                      duration: 5,
+                      repeat: Infinity,
+                      repeatType: "loop",
+                    }}
+                  >
+                    {playlist[currentSong].title} - {playlist[currentSong].artist}
+                  </motion.p>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -498,11 +523,11 @@ const AudioVisualizer: React.FC<{
   return (
     <canvas
       ref={canvasRef}
-      width={isFullscreen ? 800 : 200}
-      height={isFullscreen ? 800 : 40}
+      width={isFullscreen ? 1200 : 200}
+      height={isFullscreen ? 1200 : 40}
       className={`absolute ${
         isFullscreen 
-          ? 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2'
+          ? 'top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-40'
           : 'bottom-0 left-1/2 transform -translate-x-1/2'
       }`}
     />

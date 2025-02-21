@@ -24,6 +24,8 @@ import {
   Bookmark,
   Coffee,
 } from 'lucide-react';
+import MobileFooter from './MobileFooter';
+import { FaBookOpen } from 'react-icons/fa';
 
 // Types
 type FormData = {
@@ -71,6 +73,7 @@ const TerminalContact = () => {
 
   // New state for visibility
   const [isInView, setIsInView] = useState(false);
+  const [isFooterVisible, setIsFooterVisible] = useState(false);
 
   // Refs
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -128,6 +131,7 @@ const TerminalContact = () => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsInView(entry.isIntersecting);
+        setIsFooterVisible(entry.isIntersecting);
       },
       {
         threshold: 0.1,
@@ -165,7 +169,7 @@ const TerminalContact = () => {
     {
       icon: <Mail className="w-5 h-5" />,
       label: 'Email',
-      url: 'mailto:zaidahmad.work@gmail.com',
+      url: 'mailto:captainempire786@gmail.com',
       color: 'hover:text-pink-400',
     },
   ];
@@ -275,7 +279,7 @@ Connect With Me
 --------------
 GitHub: https://github.com/captainsza
 LinkedIn: https://www.linkedin.com/in/zaid-ahmad-186665229/
-Email: zaidahmad.work@gmail.com
+Email: captainempire786@gmail.com
         `;
         break;
 
@@ -402,10 +406,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 
   return (
-    <div
-      className="min-h-screen bg-gray-900 p-4 relative"
-      ref={sectionRef}
-    >
+    <div className="min-h-screen bg-gray-900 p-4 relative" ref={sectionRef}>
       {/* Background Animation */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-blue-900 to-gray-900 opacity-70"></div>
@@ -414,10 +415,10 @@ const handleSubmit = async (e: React.FormEvent) => {
       </div>
 
       {/* Conditionally render Sidebar */}
-      {/* Conditionally render Sidebar */}
-{isInView && (
-  <div
-    className={`
+      {isInView && (
+        <div className="hidden md:block">
+          <div
+            className={`
       fixed ${isSidebarCollapsed ? 'left-0' : 'left-4'} top-1/2 -translate-y-1/2
       bg-gray-800/90 backdrop-blur-lg rounded-lg
       border border-purple-500/30
@@ -425,159 +426,159 @@ const handleSubmit = async (e: React.FormEvent) => {
       ${isSidebarCollapsed ? 'w-16' : 'w-64'}
       z-50
     `}
-  >
-    {/* Collapse Toggle */}
-    <button
-      onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-      className="absolute -right-3 top-1/2 -translate-y-1/2
+          >
+            {/* Collapse Toggle */}
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="absolute -right-3 top-1/2 -translate-y-1/2
           bg-gray-800 rounded-full p-1
           border border-purple-500/30
           text-gray-400 hover:text-white
           transition-all duration-200
         "
-    >
-      {isSidebarCollapsed ? (
-        <ChevronRight className="w-4 h-4" />
-      ) : (
-        <ChevronLeft className="w-4 h-4" />
-      )}
-    </button>
+            >
+              {isSidebarCollapsed ? (
+                <ChevronRight className="w-4 h-4" />
+              ) : (
+                <ChevronLeft className="w-4 h-4" />
+              )}
+            </button>
 
-    <div className="p-4 space-y-6">
-      {/* Profile Section */}
-      <div className="text-center">
-        <User className="w-8 h-8 mx-auto text-purple-400" />
-        {!isSidebarCollapsed && (
-          <div className="mt-2">
-            <h3 className="text-white font-semibold">Zaid Ahmad</h3>
-            <p className="text-sm text-gray-400">Full-Stack Developer</p>
-          </div>
-        )}
-      </div>
+            <div className="p-4 space-y-6">
+              {/* Profile Section */}
+              <div className="text-center">
+                <User className="w-8 h-8 mx-auto text-purple-400" />
+                {!isSidebarCollapsed && (
+                  <div className="mt-2">
+                    <h3 className="text-white font-semibold">Zaid Ahmad</h3>
+                    <p className="text-sm text-gray-400">Full-Stack Developer</p>
+                  </div>
+                )}
+              </div>
 
-      {/* Contact Section */}
-      <div className="text-center">
-        <MessageSquare className="w-8 h-8 mx-auto text-green-400" />
-        {!isSidebarCollapsed && (
-          <div className="mt-2">
-            <h3 className="text-white font-semibold">Contact Me</h3>
-            <p className="text-sm text-gray-400">
-              Get in touch without the terminal
-            </p>
-          </div>
-        )}
-      </div>
+              {/* Contact Section */}
+              <div className="text-center">
+                <MessageSquare className="w-8 h-8 mx-auto text-green-400" />
+                {!isSidebarCollapsed && (
+                  <div className="mt-2">
+                    <h3 className="text-white font-semibold">Contact Me</h3>
+                    <p className="text-sm text-gray-400">
+                      Get in touch without the terminal
+                    </p>
+                  </div>
+                )}
+              </div>
 
-      {/* Navigation Buttons */}
-      <div className="space-y-2">
-        {/* Contact Button */}
-        <button
-          onClick={() => setShowContactForm(true)}
-          className={`
+              {/* Navigation Buttons */}
+              <div className="space-y-2">
+                {/* Contact Button */}
+                <button
+                  onClick={() => setShowContactForm(true)}
+                  className={`
             w-full flex items-center space-x-3 p-2
             text-gray-400 hover:text-green-400
             rounded-lg hover:bg-gray-700/50
             transition-all duration-200
             group relative
           `}
-          onMouseEnter={() => setActiveTooltip('Contact Me')}
-          onMouseLeave={() => setActiveTooltip(null)}
-        >
-          <MessageSquare className="w-5 h-5" />
-          {!isSidebarCollapsed && <span>Contact Me</span>}
-          {isSidebarCollapsed && activeTooltip === 'Contact Me' && (
-            <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded border border-purple-500/30 whitespace-nowrap">
-              Contact Me
-            </div>
-          )}
-        </button>
+                  onMouseEnter={() => setActiveTooltip('Contact Me')}
+                  onMouseLeave={() => setActiveTooltip(null)}
+                >
+                  <MessageSquare className="w-5 h-5" />
+                  {!isSidebarCollapsed && <span>Contact Me</span>}
+                  {isSidebarCollapsed && activeTooltip === 'Contact Me' && (
+                    <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded border border-purple-500/30 whitespace-nowrap">
+                      Contact Me
+                    </div>
+                  )}
+                </button>
 
-        {/* Social Links */}
-        <div className="pt-4">
-          {!isSidebarCollapsed && (
-            <h4 className="text-gray-400 text-sm mb-2">Social Links</h4>
-          )}
-          {socialLinks.map((link, index) => (
-            <a
-              key={index}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`
+                {/* Social Links */}
+                <div className="pt-4">
+                  {!isSidebarCollapsed && (
+                    <h4 className="text-gray-400 text-sm mb-2">Social Links</h4>
+                  )}
+                  {socialLinks.map((link, index) => (
+                    <a
+                      key={index}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`
                 w-full flex items-center space-x-3 p-2
                 text-gray-400 ${link.color}
                 rounded-lg hover:bg-gray-700/50
                 transition-all duration-200
                 group relative
               `}
-              onMouseEnter={() => setActiveTooltip(link.label)}
-              onMouseLeave={() => setActiveTooltip(null)}
-            >
-              {link.icon}
-              {!isSidebarCollapsed && <span>{link.label}</span>}
-              {isSidebarCollapsed && activeTooltip === link.label && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded border border-purple-500/30 whitespace-nowrap">
-                  {link.label}
+                      onMouseEnter={() => setActiveTooltip(link.label)}
+                      onMouseLeave={() => setActiveTooltip(null)}
+                    >
+                      {link.icon}
+                      {!isSidebarCollapsed && <span>{link.label}</span>}
+                      {isSidebarCollapsed && activeTooltip === link.label && (
+                        <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded border border-purple-500/30 whitespace-nowrap">
+                          {link.label}
+                        </div>
+                      )}
+                    </a>
+                  ))}
                 </div>
-              )}
-            </a>
-          ))}
-        </div>
 
-        {/* Buy Me a Coffee Button */}
-        <div className="pt-4">
-          <a
-            href="https://www.buymeacoffee.com/captainsza"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`
+                {/* Buy Me a Coffee Button */}
+                <div className="pt-4">
+                  <a
+                    href="https://www.buymeacoffee.com/captainsza"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`
               w-full flex items-center space-x-3 p-2
               text-gray-400 hover:text-yellow-400
               rounded-lg hover:bg-gray-700/50
               transition-all duration-200
               group relative
             `}
-            onMouseEnter={() => setActiveTooltip('Buy Me a Coffee')}
-            onMouseLeave={() => setActiveTooltip(null)}
-          >
-            <Coffee className="w-5 h-5" />
-            {!isSidebarCollapsed && <span>Buy Me a Coffee</span>}
-            {isSidebarCollapsed && activeTooltip === 'Buy Me a Coffee' && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded border border-purple-500/30 whitespace-nowrap">
-                Buy Me a Coffee
-              </div>
-            )}
-          </a>
-        </div>
+                    onMouseEnter={() => setActiveTooltip('Buy Me a Coffee')}
+                    onMouseLeave={() => setActiveTooltip(null)}
+                  >
+                    <Coffee className="w-5 h-5" />
+                    {!isSidebarCollapsed && <span>Buy Me a Coffee</span>}
+                    {isSidebarCollapsed && activeTooltip === 'Buy Me a Coffee' && (
+                      <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded border border-purple-500/30 whitespace-nowrap">
+                        Buy Me a Coffee
+                      </div>
+                    )}
+                  </a>
+                </div>
 
-        {/* Download CV Button */}
-        <div className="pt-4">
-          <a
-            href="/resume.pdf"
-            download
-            className={`
+                {/* Download CV Button */}
+                <div className="pt-4">
+                  <a
+                    href="/resume.pdf"
+                    className={`
               w-full flex items-center space-x-3 p-2
               text-gray-400 hover:text-blue-400
               rounded-lg hover:bg-gray-700/50
               transition-all duration-200
               group relative
             `}
-            onMouseEnter={() => setActiveTooltip('Download CV')}
-            onMouseLeave={() => setActiveTooltip(null)}
-          >
-            <Download className="w-5 h-5" />
-            {!isSidebarCollapsed && <span>Download CV</span>}
-            {isSidebarCollapsed && activeTooltip === 'Download CV' && (
-              <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded border border-purple-500/30 whitespace-nowrap">
-                Download CV
+                    onMouseEnter={() => setActiveTooltip('Download CV')}
+                    onMouseLeave={() => setActiveTooltip(null)}
+                  >
+                    <FaBookOpen  className="w-5 h-5" />
+                    {!isSidebarCollapsed && <span>Download CV</span>}
+                    {isSidebarCollapsed && activeTooltip === 'Download CV' && (
+                      <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-sm rounded border border-purple-500/30 whitespace-nowrap">
+                        Download CV
+                      </div>
+                    )}
+                  </a>
+                </div>
               </div>
-            )}
-          </a>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
       {/* Main Terminal Container */}
       <div
@@ -589,7 +590,8 @@ const handleSubmit = async (e: React.FormEvent) => {
             backdrop-blur-xl
             transition-all duration-300
             ${isMinimized ? 'h-12' : isMaximized ? 'h-screen' : 'h-[600px]'}
-            ${isSidebarCollapsed && isInView ? 'ml-20' : isInView ? 'ml-72' : ''}
+            ${isSidebarCollapsed && isInView ? 'md:ml-20' : isInView ? 'md:ml-72' : ''}
+            mb-20 sm:mb-0 // Add bottom margin for mobile to account for footer
           `}
       >
         {/* Terminal header */}
@@ -804,6 +806,12 @@ const handleSubmit = async (e: React.FormEvent) => {
           )}
         </button>
       )}
+
+      {/* Mobile Footer */}
+      <MobileFooter
+        isVisible={isFooterVisible}
+        onContactClick={() => setShowContactForm(true)}
+      />
     </div>
   );
 };

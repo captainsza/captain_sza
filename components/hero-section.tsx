@@ -24,11 +24,10 @@ const useMousePosition = () => {
   return mousePosition
 }
 
-
-// Interactive floating cube component
+// Updated FloatingCube with responsive positioning and size
 const FloatingCube: React.FC<{ mousePosition: { x: number; y: number } }> = ({ mousePosition }) => {
   return (
-    <div className="absolute right-10 top-20 h-40 w-40 transform-style-3d perspective-1000">
+    <div className="absolute top-10 right-2 sm:top-20 sm:right-10 h-24 w-24 sm:h-40 sm:w-40 transform-style-3d perspective-1000">
       <motion.div
         className="h-full w-full"
         style={{
@@ -49,9 +48,7 @@ const FloatingCube: React.FC<{ mousePosition: { x: number; y: number } }> = ({ m
   )
 }
 
-
-
-// Animated statistics component
+// Updated StatisticsPanel with responsive positioning and gap
 const StatisticsPanel = () => {
   const stats = [
     { label: 'Projects', value: 40, color: 'blue' },
@@ -60,7 +57,7 @@ const StatisticsPanel = () => {
   ]
 
   return (
-    <div className="absolute bottom-20 right-10 flex gap-4">
+    <div className="absolute bottom-10 right-2 sm:bottom-20 sm:right-10 flex gap-2 sm:gap-4">
       {stats.map(({ label, value, unit, color }) => (
         <motion.div
           key={label}
@@ -112,7 +109,6 @@ export function HeroSectionComponent() {
         <source src="/videos/coool.mp4" type="video/mp4" />
       </video>
 
-
       {/* Interactive elements */}
       <FloatingCube mousePosition={mousePosition} />
 
@@ -155,7 +151,7 @@ export function HeroSectionComponent() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="group relative overflow-hidden rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 px-8 py-3 text-lg font-semibold"
+                className="group relative overflow-hidden rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 px-8 py-3 text-lg font-semibold w-full sm:w-auto"
               >
                 <span className="relative z-10">Explore My Universe</span>
                 <motion.div
@@ -180,17 +176,18 @@ export function HeroSectionComponent() {
         </motion.div>
       </div>
 
-      <div className="absolute left-0 bottom-0 p-4 lg:left-8 lg:bottom-8 z-20">
+      {/* Update the WelcomeAvatar container div */}
+      <div className="absolute top-4 left-4 sm:top-auto sm:left-0 sm:bottom-0 sm:p-4 lg:left-8 lg:bottom-8 z-20">
         <WelcomeAvatar
           imageUrl="/2.png"
-          size="lg"
+          size="sm"
+          className="sm:w-80 sm:h-80" // Override size for larger screens
           welcomeMessage="Welcome to My Digital Universe!"
           additionalInfo={{
             title: "Quick Intro",
             items: [
               { label: "Name", value: "Zaid Ahmad" },
               {label:"Company", value:"Flexeere IT Sol PVT LTD"}
-  
             ]
           }}
         />

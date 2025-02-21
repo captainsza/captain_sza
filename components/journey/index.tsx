@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 import React, { useEffect, useState, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue, useAnimation } from 'framer-motion';
-import { Play, Linkedin, Star, Trophy, ChevronRight, ChevronLeft } from 'lucide-react';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue, useAnimation, useInView } from 'framer-motion';
+import { Play, Linkedin, Star, Trophy, ChevronRight, ChevronLeft, ChevronDown } from 'lucide-react';
 
 interface Hackathon {
         title: string;
@@ -13,6 +13,8 @@ interface Hackathon {
         achievements: string[];
         videoUrl?: string;
         imageUrl: string | string[]; // Allow both single and multiple images
+        features?: { icon: string; label: string }[];
+        status?: string;
       }
       
 
@@ -161,7 +163,7 @@ const FuturisticCard: React.FC<{
     </motion.div>
   );
 };
-const ImageSlider: React.FC<{ images: string[] }> = ({ images }) => {
+const ImageSlider: React.FC<{ images: string[], autoPlay?: boolean }> = ({ images, autoPlay = false }) => {
         const [currentImageIndex, setCurrentImageIndex] = useState(0);
       
         const handleNextImage = () => {
@@ -201,6 +203,132 @@ const ImageSlider: React.FC<{ images: string[] }> = ({ images }) => {
         );
       };
       
+// Enhanced Hackathon Card Component
+const HackathonCard: React.FC<{ hackathon: Hackathon; index: number }> = ({ hackathon, index }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const ref = useRef(null);
+  const inView = useInView(ref, { amount: 0.1 });
+
+  return (
+    <motion.div
+      ref={ref}
+      className="relative group h-full"
+      initial={{ opacity: 0, y: 50 }}
+      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+      transition={{ duration: 0.6, delay: index * 0.2 }}
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      
+      <div className="relative h-full bg-gray-800/50 border border-gray-700/50 rounded-2xl overflow-hidden backdrop-blur-sm">
+        <div className="p-6 flex flex-col h-full">
+          {/* Header Section */}
+          <div className="mb-6">
+            <motion.h3 
+              className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2"
+              initial={{ opacity: 0, x: -20 }}
+              animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+            >
+              {hackathon.title}
+            </motion.h3>
+            
+            {/* Status and Date */}
+            {hackathon.status && (
+              <motion.div 
+                className="inline-block px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-sm border border-blue-500/30 mb-2"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+              >
+                {hackathon.status}
+              </motion.div>
+            )}
+            
+            <p className="text-gray-400 text-sm">{hackathon.date}</p>
+          </div>
+
+          {/* Image Slider */}
+          <ImageSlider 
+            images={Array.isArray(hackathon.imageUrl) ? hackathon.imageUrl : [hackathon.imageUrl]}
+          />
+
+          {/* Content Section */}
+          <div className="mt-6 flex-grow">
+            <div className={`space-y-4 ${!isExpanded && 'max-h-[150px] overflow-hidden'}`}>
+              <p className="text-gray-300">{hackathon.description}</p>
+              
+              {/* Technologies */}
+              <div className="flex flex-wrap gap-2">
+                {hackathon.technologies.map((tech) => (
+                  <motion.span
+                    key={tech}
+                    className="px-3 py-1 rounded-full bg-gray-700/50 text-gray-300 text-sm border border-gray-600/50
+                              hover:bg-blue-500/20 hover:border-blue-500/30 hover:text-blue-400 transition-all duration-300"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    {tech}
+                  </motion.span>
+                ))}
+              </div>
+
+              {/* Features Grid */}
+              {hackathon.features && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {hackathon.features.map((feature, i) => (
+                    <motion.div
+                      key={i}
+                      className="flex items-center gap-2 p-2 rounded-lg bg-gray-700/30 border border-gray-600/30"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                      transition={{ delay: i * 0.1 }}
+                    >
+                      <span className="text-xl">{feature.icon}</span>
+                      <span className="text-sm text-gray-300">{feature.label}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+
+              {/* Achievements */}
+              <div className="space-y-2">
+                {hackathon.achievements.map((achievement, i) => (
+                  <motion.div
+                    key={i}
+                    className="flex items-center gap-2"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <Star className="w-4 h-4 text-yellow-400 flex-shrink-0" />
+                    <span className="text-gray-300">{achievement}</span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Expand/Collapse Button */}
+            {hackathon.description.length > 150 && (
+              <motion.button
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="mt-4 text-sm text-blue-400 hover:text-blue-300 flex items-center gap-2"
+                whileHover={{ scale: 1.05 }}
+              >
+                {isExpanded ? 'Show Less' : 'Show More'}
+                <motion.div
+                  animate={{ rotate: isExpanded ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </motion.div>
+              </motion.button>
+            )}
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 // Main FuturisticJourney Component
 const FuturisticJourney: React.FC = () => {
         const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
@@ -237,7 +365,18 @@ const FuturisticJourney: React.FC = () => {
             achievements: ['Team Collaboration Recognition'],
             imageUrl: ['/journey/h5.jpg','/journey/h4.jpg','/journey/h6.png'],
           },
-          // Add more hackathons as needed...
+          {
+            title: 'AI Bot Detection System - IIT Kanpur',
+            date: 'February 15-18, 2025',
+            description: 'Developed an advanced AI system for detecting bot accounts using hybrid ML approaches and modern frontend technologies.',
+            technologies: ['Next.js', 'Python', 'XGBoost', 'BERT', 'Neural Networks', 'TailwindCSS'],
+            achievements: [
+              'Finalist at IIT Kanpur and Best Technical Implementation',
+            ],
+            imageUrl: ['/journey/k1.jpg', '/journey/k2.jpg', '/journey/k3.jpg'],
+            
+            status: 'Qualified through all rounds'
+          },
         ];
       
         const experiences: JobExperience[] = [
@@ -445,113 +584,13 @@ const FuturisticJourney: React.FC = () => {
               Hackathon Journey
             </motion.h2>
     
-            <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 auto-rows-fr">
               {hackathons.map((hackathon, index) => (
-                <FuturisticCard
+                <HackathonCard
                   key={hackathon.title}
-                  className="bg-gray-800/50 p-6 rounded-xl border border-blue-500/30 backdrop-blur-sm"
-                >
-                  <motion.div
-                    className="relative group"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
-    
-                    {Array.isArray(hackathon.imageUrl) ? (
-                        <ImageSlider images={hackathon.imageUrl} />
-                        ) : (
-                        <img
-                        src={hackathon.imageUrl}
-                        alt={hackathon.title}
-                        className="w-full h-56 object-cover rounded-lg mb-4"
-                        />
-                        )}
-
-
-    
-                    <motion.h3 
-                      className="text-2xl font-bold text-blue-400 mb-2"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                    >
-                      {hackathon.title}
-                    </motion.h3>
-    
-                    <motion.p 
-                      className="text-gray-400 mb-2"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                    >
-                      {hackathon.date}
-                    </motion.p>
-    
-                    <motion.p 
-                      className="text-gray-300 mb-4"
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 }}
-                    >
-                      {hackathon.description}
-                    </motion.p>
-    
-                    <motion.div 
-                      className="flex flex-wrap gap-2 mb-4"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ staggerChildren: 0.1 }}
-                    >
-                      {hackathon.technologies.map((tech, i) => (
-                        <motion.span
-                          key={tech}
-                          className="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-sm border border-blue-500/20"
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: i * 0.1 }}
-                          whileHover={{ scale: 1.05 }}
-                        >
-                          {tech}
-                        </motion.span>
-                      ))}
-                    </motion.div>
-    
-                    <div className="space-y-2 mb-4">
-                      {hackathon.achievements.map((achievement, i) => (
-                        <motion.div
-                          key={i}
-                          className="flex items-center space-x-2"
-                          initial={{ opacity: 0, x: -20 }}
-                          whileInView={{ opacity: 1, x: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                        >
-                          <Star className="w-4 h-4 text-yellow-400 flex-shrink-0" />
-                          <span className="text-gray-300">{achievement}</span>
-                        </motion.div>
-                      ))}
-                    </div>
-    
-                    {hackathon.videoUrl && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 1 }}
-                        transition={{ delay: 0.3 }}
-                      >
-                        <GlowingButton
-                          onClick={() => {
-                            setCurrentVideo(hackathon.videoUrl || '');
-                            setIsVideoModalOpen(true);
-                          }}
-                        >
-                          <span className="flex items-center space-x-2">
-                            <Play className="w-4 h-4" />
-                            <span>Watch Video</span>
-                          </span>
-                        </GlowingButton>
-                      </motion.div>
-                    )}
-                  </motion.div>
-                </FuturisticCard>
+                  hackathon={hackathon}
+                  index={index}
+                />
               ))}
             </div>
           </section>

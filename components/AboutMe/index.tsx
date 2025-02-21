@@ -141,47 +141,139 @@ const SkillCard: FC<Skill & { index: number }> = ({
   index
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left - rect.width / 2) / 15;
+    const y = (e.clientY - rect.top - rect.height / 2) / 15;
+    cardRef.current.style.transform = `perspective(1000px) rotateX(${-y}deg) rotateY(${x}deg) scale3d(1.02, 1.02, 1.02)`;
+  };
+
+  const handleMouseLeave = () => {
+    if (!cardRef.current) return;
+    cardRef.current.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+    setIsHovered(false);
+  };
 
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
+      className="group"
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={handleMouseLeave}
     >
-      <motion.div
-        className="group w-full h-36 bg-gray-800/90 rounded-lg border border-blue-500/20 p-4"
-        onHoverStart={() => setIsHovered(true)}
-        onHoverEnd={() => setIsHovered(false)}
-        whileHover={{ scale: 1.02, y: -2 }}
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 bg-blue-500/10 rounded-md">
-            <Icon className="text-xl text-blue-400" />
-          </div>
-          <div>
-            <h3 className="text-base font-medium text-white">{name}</h3>
-            <p className="text-xs text-gray-400">{description}</p>
+      <div className={`
+        relative h-full p-4 sm:p-6
+        rounded-xl backdrop-blur-sm
+        border border-white/10
+        bg-gradient-to-br from-gray-900/90 to-gray-800/90
+        transition-all duration-300 ease-out
+        transform-gpu will-change-transform
+        hover:border-blue-500/30
+        ${isHovered ? 'shadow-lg shadow-blue-500/20' : ''}
+      `}>
+        {/* Skill Header */}
+        <div className="flex items-start gap-3 mb-3">
+          <motion.div
+            className="relative flex-shrink-0"
+            animate={{
+              rotateY: isHovered ? 180 : 0
+            }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 p-2 flex items-center justify-center">
+              <Icon className="w-6 h-6 text-blue-400" />
+            </div>
+          </motion.div>
+
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-semibold text-white truncate">{name}</h3>
+            <p className="text-xs text-gray-400 line-clamp-2">{description}</p>
           </div>
         </div>
 
-        <div className="mt-auto">
-          <div className="flex justify-between text-xs text-gray-400 mb-1">
-            <span>Proficiency</span>
-            <span>{proficiency}%</span>
+        {/* Progress Section */}
+        <div className="mt-2">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-300">Mastery</span>
+            <motion.span 
+              className="text-xs font-bold text-blue-400"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              {proficiency}%
+            </motion.span>
           </div>
-          <div className="h-1.5 bg-gray-700/50 rounded-full overflow-hidden">
+
+          <div className="h-1.5 relative rounded-full overflow-hidden bg-gray-700/50">
             <motion.div
-              className="h-full bg-gradient-to-r from-blue-400 to-purple-400"
+              className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
               initial={{ width: 0 }}
               animate={{ width: `${proficiency}%` }}
-              transition={{ duration: 0.8 }}
-            />
+              transition={{ duration: 1, delay: 0.2 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shine" />
+            </motion.div>
           </div>
         </div>
-      </motion.div>
+
+        {/* Hover Effects */}
+        <motion.div
+          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          style={{
+            background: `radial-gradient(circle at ${isHovered ? '50%' : '0%'} 0%, rgba(59, 130, 246, 0.1) 0%, transparent 70%)`
+          }}
+        />
+
+        {/* Interactive Corner Accents */}
+        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-blue-500/30 rounded-tl-xl" />
+        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-purple-500/30 rounded-tr-xl" />
+        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-pink-500/30 rounded-bl-xl" />
+        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-blue-500/30 rounded-br-xl" />
+      </div>
     </motion.div>
   );
 };
+
+// Add this to your existing CSS or create a new styles file
+const styles = `
+  @keyframes gradient-xy {
+    0% {
+      background-position: 0% 0%;
+    }
+    100% {
+      background-position: 100% 100%;
+    }
+  }
+
+  @keyframes shine {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-gradient-xy {
+    animation: gradient-xy 15s ease infinite;
+    background-size: 400% 400%;
+  }
+
+  .animate-shine {
+    animation: shine 2s infinite;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+`;
 
 // Main About Component
 const AboutMeComponent: FC = () => {
@@ -322,28 +414,24 @@ const AboutMeComponent: FC = () => {
 
         {/* Skills Section */}
                 <motion.div
-          className="mt-16" // Reduced top margin
+          className="mt-12 sm:mt-16"
           initial="hidden"
           animate={controls}
           variants={{
             visible: {
               opacity: 1,
               y: 0,
-              transition: {
-                duration: 0.6,
-                staggerChildren: 0.1
-              }
+              transition: { duration: 0.6, staggerChildren: 0.1 }
             },
-            hidden: { opacity: 0, y: 30 } // Reduced y offset
+            hidden: { opacity: 0, y: 30 }
           }}
         >
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-8"> {/* Reduced text size and margin */}
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8">
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
               Technical Expertise
             </span>
           </h2>
-        
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"> {/* Reduced gap, removed xl breakpoint */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {personalInfo.skills.map((skill, index) => (
               <SkillCard key={skill.id} {...skill} index={index} />
             ))}

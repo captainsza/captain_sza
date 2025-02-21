@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { FaReact, FaNodeJs, FaPython } from 'react-icons/fa';
-import { SiTypescript, SiKubernetes, SiFlutter, SiMongodb, SiPrisma } from 'react-icons/si';
+import { FaReact, FaNodeJs, FaPython, FaLock } from 'react-icons/fa';
+import { SiTypescript, SiKubernetes, SiFlutter, SiMongodb, SiPrisma, SiTensorflow } from 'react-icons/si';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { RiTailwindCssFill } from "react-icons/ri";
@@ -64,7 +64,7 @@ export const personalInfo: PersonalInfo = {
           {
             id: 'Tailwind CSS',
             icon: RiTailwindCssFill,
-            name: 'Prisma',
+            name: 'Tailwind',
             description: ' CSS framework',
             proficiency: 85,
           },
@@ -74,6 +74,22 @@ export const personalInfo: PersonalInfo = {
             name: 'React Native',
             description: 'Cross-Platform Development',
             proficiency: 85,
+          },
+          // New ML/AI skill
+          {
+            id: 'tensorflow',
+            icon: SiTensorflow,
+            name: 'TensorFlow',
+            description: 'Machine Learning Framework',
+            proficiency: 70,
+          },
+          // New Security skill
+          {
+            id: 'security',
+            icon: FaLock,
+            name: 'Cyber Security',
+            description: 'Security Auditing & Penetration Testing',
+            proficiency: 65,
           },
         ],
         interests: ['Quantum Computing', 'Sci-Fi Projects', 'AI Evolution'],
@@ -100,4 +116,3 @@ export const personalInfo: PersonalInfo = {
       }
 
 
-      

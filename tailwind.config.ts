@@ -62,19 +62,37 @@ const config: Config = {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
-  		animation: {
-  			grid: 'grid 15s linear infinite'
-  		},
-  		keyframes: {
-  			grid: {
-  				'0%': {
-  					transform: 'translateY(-50%)'
-  				},
-  				'100%': {
-  					transform: 'translateY(0)'
-  				}
-  			}
-  		}
+  		
+  		
+		  animation: {
+			'gradient-xy': 'gradient-xy 15s ease infinite',
+			'shine': 'shine 2s infinite',
+			grid: 'grid 15s linear infinite'
+		      },
+		      keyframes: {
+			'gradient-xy': {
+			  '0%, 100%': {
+			    'background-size': '400% 400%',
+			    'background-position': 'left center'
+			  },
+			  '50%': {
+			    'background-size': '200% 200%',
+			    'background-position': 'right center'
+			  }
+			},
+			'shine': {
+			  '0%': { transform: 'translateX(-100%)' },
+			  '100%': { transform: 'translateX(100%)' }
+			},
+			grid: {
+				'0%': {
+					transform: 'translateY(-50%)'
+				},
+				'100%': {
+					transform: 'translateY(0)'
+				}
+			}
+		      }
   	}
   },
   plugins: [require("tailwindcss-animate")],

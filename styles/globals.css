@@ -1,0 +1,37 @@
+/* Modal and overlay styles */
+
+.modal-overlay {
+    z-index: 1000;
+}
+
+.image-modal {
+    z-index: 1001;
+}
+
+
+/* Image hover effects */
+
+.image-hover-overlay {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.group:hover .image-hover-overlay {
+    opacity: 1;
+}
+
+
+/* Custom scrollbar for modal */
+
+.modal-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.modal-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}

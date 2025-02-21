@@ -11,7 +11,7 @@ import { HeroSectionComponent } from '../hero-section';
 import { EnhancedFloatingDock } from '../ui/floating-dock';
 import MusicPlayerButton from '../music';
 import AboutMeComponent from '../AboutMe';
-import FuturisticStats from '../stats';
+
 import FuturisticProjects from '../projects';
 import { GiJourney } from "react-icons/gi";
 import CircularProgress from '../CircularProgress';
@@ -53,11 +53,7 @@ const links: NavLink[] = [
     icon: <SiAboutdotme className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
     href: "#about",
   },
-  {
-    title: "Stats",
-    icon: <ImStatsDots className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
-    href: "#stats",
-  },
+
   {
     title: "Projects",
     icon: <GrProjects className="h-full w-full text-neutral-500 dark:text-neutral-300" />,
@@ -162,15 +158,6 @@ export const HomeComponent: React.FC = () => {
           </section>
         </TransitionWrapper>
 
-        <TransitionWrapper 
-          sectionId="stats"
-          activeSection={activeSection}
-          nextSection={nextSection}
-        >
-          <section id="stats">
-            <FuturisticStats />
-          </section>
-        </TransitionWrapper>
 
         <TransitionWrapper 
           sectionId="projects"

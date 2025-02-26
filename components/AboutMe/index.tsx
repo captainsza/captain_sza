@@ -142,6 +142,15 @@ const SkillCard: FC<Skill & { index: number }> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const controls = useAnimation();
+
+  useEffect(() => {
+    if (isHovered) {
+      controls.start("hover");
+    } else {
+      controls.start("initial");
+    }
+  }, [isHovered, controls]);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
@@ -162,80 +171,111 @@ const SkillCard: FC<Skill & { index: number }> = ({
       ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
+      transition={{ delay: index * 0.05 }} // Faster stagger
       className="group"
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={handleMouseLeave}
     >
       <div className={`
-        relative h-full p-4 sm:p-6
-        rounded-xl backdrop-blur-sm
+        relative h-full p-3 sm:p-4
+        rounded-lg backdrop-blur-sm
         border border-white/10
         bg-gradient-to-br from-gray-900/90 to-gray-800/90
         transition-all duration-300 ease-out
         transform-gpu will-change-transform
-        hover:border-blue-500/30
+        hover:border-blue-500/50
         ${isHovered ? 'shadow-lg shadow-blue-500/20' : ''}
       `}>
-        {/* Skill Header */}
-        <div className="flex items-start gap-3 mb-3">
+        {/* Tech Grid Pattern Background */}
+        <div className="absolute inset-0 bg-[url('/tech-grid.png')] bg-repeat opacity-10 mix-blend-overlay rounded-lg overflow-hidden"></div>
+        
+        {/* Animated Scanner Line */}
+        <motion.div 
+          className="absolute left-0 top-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"
+          initial={{ y: 0 }}
+          animate={{ y: isHovered ? 100 : 0 }}
+          transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
+        ></motion.div>
+        
+        {/* Skill Header - Compact Design */}
+        <div className="flex items-center gap-2 mb-2">
           <motion.div
-            className="relative flex-shrink-0"
+            className="relative flex-shrink-0 p-1"
             animate={{
               rotateY: isHovered ? 180 : 0
             }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.6 }}
           >
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 p-2 flex items-center justify-center">
-              <Icon className="w-6 h-6 text-blue-400" />
+            <div className="w-8 h-8 rounded-md bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+              <Icon className="w-5 h-5 text-blue-400" />
             </div>
           </motion.div>
 
           <div className="flex-1 min-w-0">
-            <h3 className="text-base font-semibold text-white truncate">{name}</h3>
-            <p className="text-xs text-gray-400 line-clamp-2">{description}</p>
+            <h3 className="text-sm font-semibold text-white truncate leading-tight flex items-center gap-1">
+              {name}
+              <motion.span 
+                className="ml-1 text-xs font-bold text-blue-400"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                {proficiency}%
+              </motion.span>
+            </h3>
+            <p className="text-xs text-gray-400">{description}</p>
           </div>
         </div>
 
-        {/* Progress Section */}
-        <div className="mt-2">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-medium text-gray-300">Mastery</span>
-            <motion.span 
-              className="text-xs font-bold text-blue-400"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              {proficiency}%
-            </motion.span>
-          </div>
-
-          <div className="h-1.5 relative rounded-full overflow-hidden bg-gray-700/50">
+        {/* Progress Bar with Cyberpunk/Retro Look */}
+        <div className="mt-1 relative">
+          <div className="h-1.5 relative rounded-full overflow-hidden bg-gray-800/70 border border-gray-700/50">
             <motion.div
-              className="absolute top-0 left-0 h-full rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
-              initial={{ width: 0 }}
-              animate={{ width: `${proficiency}%` }}
-              transition={{ duration: 1, delay: 0.2 }}
+              className="absolute top-0 left-0 h-full rounded-full"
+              style={{
+                background: "linear-gradient(90deg, rgba(59,130,246,0.7) 0%, rgba(147,51,234,0.7) 50%, rgba(236,72,153,0.7) 100%)",
+                backgroundSize: "200% 100%"
+              }}
+              initial={{ width: 0, backgroundPosition: "0% 0%" }}
+              animate={{ 
+                width: `${proficiency}%`,
+                backgroundPosition: isHovered ? "100% 0%" : "0% 0%" 
+              }}
+              transition={{ 
+                width: { duration: 0.8, delay: 0.1 },
+                backgroundPosition: { duration: 2, repeat: isHovered ? Infinity : 0, repeatType: "reverse" }
+              }}
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shine" />
+              {/* Animated glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shine"></div>
             </motion.div>
           </div>
+          
+          {/* Progress line markers - retro/tech look */}
+          <div className="absolute top-0 left-0 w-full h-full flex justify-between px-[1px] pointer-events-none">
+            {[...Array(5)].map((_, i) => (
+              <div 
+                key={i} 
+                className={`h-2 w-[1px] bg-gray-600/30 transform translate-y-[-2px] ${i === 4 ? 'opacity-0' : ''}`}
+                style={{ left: `${i * 25}%` }}
+              ></div>
+            ))}
+          </div>
         </div>
-
-        {/* Hover Effects */}
-        <motion.div
-          className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          style={{
-            background: `radial-gradient(circle at ${isHovered ? '50%' : '0%'} 0%, rgba(59, 130, 246, 0.1) 0%, transparent 70%)`
-          }}
-        />
-
+        
         {/* Interactive Corner Accents */}
-        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-blue-500/30 rounded-tl-xl" />
-        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-purple-500/30 rounded-tr-xl" />
-        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-pink-500/30 rounded-bl-xl" />
-        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-blue-500/30 rounded-br-xl" />
+        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-blue-500/40 rounded-tl-lg"></div>
+        <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-purple-500/40 rounded-tr-lg"></div>
+        <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-pink-500/40 rounded-bl-lg"></div>
+        <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-blue-500/40 rounded-br-lg"></div>
+        
+        {/* Optional: Hover indicator dot */}
+        <motion.div
+          className="absolute bottom-1 right-1.5 w-1 h-1 rounded-full bg-blue-500"
+          initial={{ opacity: 0.3 }}
+          animate={{ opacity: isHovered ? 0.8 : 0.3 }}
+          transition={{ duration: 0.3 }}
+        ></motion.div>
       </div>
     </motion.div>
   );
@@ -414,27 +454,59 @@ const AboutMeComponent: FC = () => {
 
         {/* Skills Section */}
                 <motion.div
-          className="mt-12 sm:mt-16"
+          className="mt-12 sm:mt-16 px-4 sm:px-0"
           initial="hidden"
           animate={controls}
           variants={{
             visible: {
               opacity: 1,
               y: 0,
-              transition: { duration: 0.6, staggerChildren: 0.1 }
+              transition: { duration: 0.6, staggerChildren: 0.05 }
             },
             hidden: { opacity: 0, y: 30 }
           }}
         >
-          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
-              Technical Expertise
-            </span>
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {personalInfo.skills.map((skill, index) => (
-              <SkillCard key={skill.id} {...skill} index={index} />
-            ))}
+          <div className="relative">
+            {/* Section Title with Retro-Futuristic Decoration */}
+            <div className="relative z-10 flex flex-col items-center mb-8">
+              <div className="flex items-center mb-2">
+                <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-blue-500/70 mr-3"></div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-center">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">
+                    Technical Expertise
+                  </span>
+                </h2>
+                <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-purple-500/70 ml-3"></div>
+              </div>
+              
+              <motion.div 
+                className="flex items-center"
+                animate={{ opacity: [0.5, 1, 0.5] }}
+                transition={{ duration: 4, repeat: Infinity }}
+              >
+                <span className="text-sm text-gray-400 font-mono">[</span>
+                <span className="text-xs text-gray-500 mx-2 tracking-wider font-mono">SKILL MATRIX</span>
+                <span className="text-sm text-gray-400 font-mono">]</span>
+              </motion.div>
+            </div>
+            
+            {/* Background Decorations for Skills Section */}
+            <div className="absolute inset-0 -z-10">
+              <div className="absolute top-10 left-1/2 w-48 h-48 bg-blue-500/10 rounded-full mix-blend-multiply filter blur-3xl"></div>
+              <div className="absolute bottom-10 left-1/4 w-72 h-72 bg-purple-500/10 rounded-full mix-blend-multiply filter blur-3xl"></div>
+            </div>
+            
+            {/* Skill Cards with CSS Grid for better responsiveness */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-3">
+              {personalInfo.skills.map((skill, index) => (
+                <SkillCard key={skill.id} {...skill} index={index} />
+              ))}
+            </div>
+            
+            {/* Bottom Decorative Element */}
+            <div className="mt-8 flex justify-center">
+              <div className="h-[3px] w-16 rounded-full bg-gradient-to-r from-blue-500/40 via-purple-500/40 to-pink-500/40"></div>
+            </div>
           </div>
         </motion.div>
       </div>

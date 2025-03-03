@@ -1,0 +1,19 @@
+{
+    "name": "Captain SZA | Zaid Ahmad Portfolio",
+    "short_name": "Captain SZA",
+    "icons": [{
+            "src": "https://empiresphere.vercel.app/api/files/67c61f38e8351fb862fa9857/view?apiKey=emp_cbb0f91b-ae83-4fdc-a4e9-e1deb39ed9cc",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "https://empiresphere.vercel.app/api/files/67c61f38e8351fb862fa9857/view?apiKey=emp_cbb0f91b-ae83-4fdc-a4e9-e1deb39ed9cc",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#ffffff",
+    "background_color": "#000000",
+    "display": "standalone",
+    "start_url": "/"
+}

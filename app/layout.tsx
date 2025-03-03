@@ -99,6 +99,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#ffffff" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        {/* Fixed Google Analytics component */}
         <GoogleAnalytics />
         {children}
       </body>

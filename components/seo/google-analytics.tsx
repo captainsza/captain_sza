@@ -11,24 +11,30 @@ declare global {
 import { useEffect } from 'react';
 import Script from 'next/script';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 // Replace GA_MEASUREMENT_ID with your actual Google Analytics measurement ID
 const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; 
 
-export function GoogleAnalytics() {
+// Separate component that uses useSearchParams
+function GoogleAnalyticsTracking() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!GA_MEASUREMENT_ID || !window.gtag) return;
+    if (!GA_MEASUREMENT_ID || typeof window === 'undefined' || !window.gtag) return;
 
-    const url = pathname + searchParams.toString();
+    const url = pathname + (searchParams?.toString() || '');
 
     window.gtag('config', GA_MEASUREMENT_ID, {
       page_path: url,
     });
   }, [pathname, searchParams]);
 
+  return null;
+}
+
+export function GoogleAnalytics() {
   return (
     <>
       <Script
@@ -47,6 +53,11 @@ export function GoogleAnalytics() {
           `,
         }}
       />
+      
+      {/* Wrap the component using useSearchParams in Suspense */}
+      <Suspense fallback={null}>
+        <GoogleAnalyticsTracking />
+      </Suspense>
     </>
   );
 }

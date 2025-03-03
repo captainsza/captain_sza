@@ -644,13 +644,3 @@ export default function RetroFuturisticProjects() {
   );
 }
 
-// Add this to your global CSS
-const styles = `
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-`;

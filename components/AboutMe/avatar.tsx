@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useAnimation } from 'framer-motion';
+import Image from 'next/image';
 
 interface AvatarProps {
   imageUrl: string;
@@ -21,15 +22,31 @@ const Avatar: React.FC<AvatarProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const hologramAnimation = useAnimation();
 
   // Size mapping with expanded hover sizes
   const sizeClasses = {
-    sm: 'w-48 h-48',
-    md: 'w-64 h-64',
-    lg: 'w-80 h-80'
+    sm: 'w-40 h-40 md:w-48 md:h-48',
+    md: 'w-52 h-52 md:w-64 md:h-64',
+    lg: 'w-60 h-60 md:w-80 md:h-80'
   };
 
+  useEffect(() => {
+    // Start hologram flicker effect
+    hologramAnimation.start({
+      opacity: [0.7, 0.9, 0.7, 0.85, 0.7],
+      transition: { 
+        duration: 5, 
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut" 
+      }
+    });
+  }, [hologramAnimation]);
+
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
     const { currentTarget, clientX, clientY } = e;
     const { left, top, width, height } = currentTarget.getBoundingClientRect();
     
@@ -39,8 +56,8 @@ const Avatar: React.FC<AvatarProps> = ({
     
     // Update rotation based on mouse position
     setRotation({
-      x: -(y / height) * 20,
-      y: (x / width) * 20
+      x: -(y / height) * 25, // Increased rotation effect
+      y: (x / width) * 25
     });
 
     // Update mouse position for parallax effect
@@ -53,11 +70,14 @@ const Avatar: React.FC<AvatarProps> = ({
   };
 
   return (
-    <div className="relative" style={{ perspective: '1500px' }}>
-      {/* Outer container with padding for overflow */}
-      <div className={`p-12 relative ${isHovered ? 'z-50' : 'z-0'}`}>
-        {/* Main avatar container */}
+    <div className="relative" style={{ perspective: '2000px' }}>
+      {/* Futuristic frame */}
+      <div className="absolute inset-0 -m-6 rounded-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-xl animate-pulse z-0"></div>
+      
+      {/* Main avatar container */}
+      <div className={`p-6 sm:p-12 relative ${isHovered ? 'z-50' : 'z-10'}`}>
         <motion.div
+          ref={containerRef}
           className={`relative ${sizeClasses[size]} cursor-pointer`}
           animate={{
             rotateX: rotation.x,
@@ -71,40 +91,50 @@ const Avatar: React.FC<AvatarProps> = ({
           onMouseLeave={handleMouseLeave}
           style={{ transformStyle: 'preserve-3d' }}
         >
-          {/* Expanding background effect */}
+          {/* Holographic frame effect */}
           <motion.div
-            className="absolute rounded-full"
-            animate={{
-              scale: isHovered ? 1.15 : 1,
-              opacity: isHovered ? 1 : 0
-            }}
+            className="absolute -inset-5 rounded-full"
+            animate={hologramAnimation}
             style={{
-              inset: -20,
               background: `radial-gradient(circle at ${50 + (mousePosition.x / 100)}% ${50 + (mousePosition.y / 100)}%, 
-                rgba(59, 130, 246, 0.3), 
-                rgba(139, 92, 246, 0.2), 
-                rgba(0, 0, 0, 0))`
+                rgba(59, 130, 246, 0.4), 
+                rgba(139, 92, 246, 0.3), 
+                rgba(0, 0, 0, 0))`,
+              boxShadow: '0 0 40px rgba(66, 153, 225, 0.5) inset',
+              transform: 'translateZ(-10px)'
             }}
           />
 
-          {/* Protruding orbital rings */}
+          {/* 3D orbital rings */}
           {[0, 1, 2].map((index) => (
             <motion.div
               key={index}
-              className="absolute inset-0 rounded-full border border-blue-500/30"
+              className={`absolute inset-0 rounded-full border ${index % 2 === 0 ? 'border-blue-500/30' : 'border-purple-500/30'}`}
               animate={{
                 rotateZ: [0, 360],
-                scale: isHovered ? 1 + (index * 0.05) : 1,
-                z: isHovered ? index * 20 : 0
+                rotateX: [index * 15, -index * 15],
+                rotateY: [index * 10, -index * 10],
+                scale: isHovered ? 1 + (index * 0.15) : 1,
+                z: isHovered ? index * 30 : 0
               }}
               transition={{
                 rotateZ: {
                   repeat: Infinity,
-                  duration: 8 - index,
+                  duration: 20 - index * 5,
+                  ease: "linear"
+                },
+                rotateX: {
+                  repeat: Infinity,
+                  duration: 15 - index * 3,
+                  ease: "linear"
+                },
+                rotateY: {
+                  repeat: Infinity,
+                  duration: 25 - index * 7,
                   ease: "linear"
                 },
                 scale: {
-                  duration: 0.4
+                  duration: 0.6
                 }
               }}
               style={{
@@ -113,46 +143,127 @@ const Avatar: React.FC<AvatarProps> = ({
             />
           ))}
 
+          {/* Digital interference lines */}
+          <motion.div 
+            className="absolute inset-0 overflow-hidden rounded-full pointer-events-none mix-blend-overlay opacity-20"
+            style={{ transform: 'translateZ(20px)' }}
+          >
+            {[...Array(6)].map((_, i) => (
+              <motion.div 
+                key={i}
+                className="absolute h-[1px] w-full bg-cyan-400"
+                animate={{
+                  y: ['-100%', '200%'],
+                  opacity: [0.2, 0.8, 0.2],
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 2 + i,
+                  delay: i * 0.2,
+                  ease: "linear"
+                }}
+                style={{
+                  top: `${i * 20}%`,
+                }}
+              />
+            ))}
+          </motion.div>
+
           {/* Main avatar image with parallax effect */}
           <motion.div
-            className="relative w-full h-full rounded-full overflow-visible" // Allow overflow
+            className="relative w-full h-full rounded-full overflow-hidden shadow-inner"
             animate={{
-              scale: isHovered ? 1.2 : 1, // Increase scale on hover
+              scale: isHovered ? 1.2 : 1,
               z: isHovered ? 30 : 0
             }}
-            style={{ transformStyle: 'preserve-3d' }}
+            style={{ 
+              transformStyle: 'preserve-3d',
+              boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3) inset' 
+            }}
           >
-            <motion.img
-              src={imageUrl}
-              alt="Avatar"
-              className="w-full h-full object-cover"
+            {/* Dynamic mask overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 to-transparent mix-blend-overlay z-10" />
+            
+            <motion.div
+              className="w-full h-full"
               animate={{
                 x: isHovered ? mousePosition.x * 0.1 : 0,
                 y: isHovered ? mousePosition.y * 0.1 : 0
               }}
               transition={{ type: "spring", stiffness: 150, damping: 15 }}
+            >
+              <Image 
+                src={imageUrl} 
+                alt="Avatar" 
+                fill
+                className="object-cover"
+                priority
+              />
+            </motion.div>
+            
+            {/* Scan line effect */}
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-400/20 to-transparent h-[20%]"
+              animate={{
+                y: ['-100%', '200%'],
+              }}
+              transition={{
+                repeat: Infinity,
+                duration: 2.5,
+                ease: "linear"
+              }}
             />
           </motion.div>
 
-          {/* Floating highlight elements */}
+          {/* Futuristic data panels */}
           <AnimatePresence>
             {isHovered && highlights && (
               <motion.div
-                className="absolute -right-1/4 top-1/4 bg-gray-900/90 rounded-lg p-4 text-white"
+                className="absolute -right-4 sm:-right-1/4 top-1/4 bg-gray-900/90 backdrop-blur-sm rounded-lg p-3 text-white border border-blue-500/20"
                 initial={{ opacity: 0, x: 50, z: -20 }}
                 animate={{ opacity: 1, x: 0, z: 40 }}
                 exit={{ opacity: 0, x: 50, z: -20 }}
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <h3 className="text-lg font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                <h3 className="text-lg font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 flex items-center">
+                  <span className="mr-1 text-xs opacity-70">[</span>
                   {highlights.title}
+                  <span className="ml-1 text-xs opacity-70">]</span>
                 </h3>
-                {highlights.items.map((item, index) => (
-                  <div key={index} className="mb-1">
-                    <span className="text-blue-300">{item.label}:</span>
-                    <span className="ml-2 text-gray-300">{item.value}</span>
-                  </div>
-                ))}
+                
+                <div className="space-y-2">
+                  {highlights.items.map((item, index) => (
+                    <motion.div 
+                      key={index} 
+                      className="flex flex-col"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/30 to-transparent"></div>
+                      <div className="flex justify-between items-center py-1">
+                        <span className="text-xs text-blue-300 font-mono">{item.label}</span>
+                        <span className="ml-2 text-sm text-gray-300 font-light">{item.value}</span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                
+                {/* Interactive dot indicators */}
+                <div className="absolute top-1 right-1 flex space-x-1">
+                  {[...Array(3)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className={`w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-blue-400' : i === 1 ? 'bg-purple-400' : 'bg-pink-400'}`}
+                      animate={{ opacity: [0.4, 0.8, 0.4] }}
+                      transition={{ 
+                        duration: 2, 
+                        delay: i * 0.3,
+                        repeat: Infinity,
+                      }}
+                    />
+                  ))}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -169,14 +280,14 @@ const Avatar: React.FC<AvatarProps> = ({
             }}
           />
 
-          {/* Protruding particles */}
+          {/* Particle effects */}
           <AnimatePresence>
             {isHovered && (
               <>
-                {[...Array(8)].map((_, i) => (
+                {[...Array(12)].map((_, i) => (
                   <motion.div
                     key={i}
-                    className="absolute w-2 h-2 rounded-full bg-blue-400/50"
+                    className="absolute w-1.5 h-1.5 rounded-full bg-blue-400/70"
                     initial={{
                       scale: 0,
                       x: 0,
@@ -185,14 +296,14 @@ const Avatar: React.FC<AvatarProps> = ({
                     }}
                     animate={{
                       scale: [1, 0],
-                      x: Math.cos(i * (Math.PI / 4)) * 100,
-                      y: Math.sin(i * (Math.PI / 4)) * 100,
+                      x: Math.cos(i * (Math.PI / 6)) * 120,
+                      y: Math.sin(i * (Math.PI / 6)) * 120,
                       z: 50
                     }}
                     transition={{
                       duration: 1.5,
                       repeat: Infinity,
-                      delay: i * 0.2
+                      delay: i * 0.15
                     }}
                     style={{ transformStyle: 'preserve-3d' }}
                   />

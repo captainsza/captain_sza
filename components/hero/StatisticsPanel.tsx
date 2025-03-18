@@ -8,7 +8,7 @@ const StatisticsPanel: React.FC = () => {
   const stats = [
     { 
       label: 'Projects', 
-      value: 40, 
+      value: 45, 
       color: 'blue', 
       icon: <Code className="w-4 h-4 sm:w-5 sm:h-5" />,
       description: 'Delivered' 

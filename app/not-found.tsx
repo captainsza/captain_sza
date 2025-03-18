@@ -9,8 +9,14 @@ export default function NotFound() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const errorCodeRef = useRef<HTMLDivElement>(null)
   const [particles, setParticles] = useState<Array<{ id: number, x: number, y: number, size: number, speed: number }>>([])
+  const [currentPath, setCurrentPath] = useState('/unknown')
+  const [windowHeight, setWindowHeight] = useState(0)
   
   useEffect(() => {
+    // Safe access to window object only on client side
+    setCurrentPath(window.location.pathname)
+    setWindowHeight(window.innerHeight)
+    
     // Generate random particles for background effect
     const newParticles = Array(40).fill(null).map((_, i) => ({
       id: i,
@@ -77,7 +83,7 @@ export default function NotFound() {
             height: `${particle.size}px`,
           }}
           animate={{
-            y: [0, window.innerHeight],
+            y: [0, windowHeight],
             opacity: [0.7, 0]
           }}
           transition={{
@@ -94,8 +100,8 @@ export default function NotFound() {
         <motion.div 
           className="flex flex-col items-center justify-center"
           animate={{
-            x: mousePosition.x ? (mousePosition.x - window.innerWidth / 2) / 50 : 0,
-            y: mousePosition.y ? (mousePosition.y - window.innerHeight / 2) / 50 : 0,
+            x: mousePosition.x ? (mousePosition.x - (typeof window !== 'undefined' ? window.innerWidth / 2 : 0)) / 50 : 0,
+            y: mousePosition.y ? (mousePosition.y - (typeof window !== 'undefined' ? window.innerHeight / 2 : 0)) / 50 : 0,
           }}
           transition={{ type: "spring", damping: 50 }}
         >
@@ -309,7 +315,7 @@ export default function NotFound() {
               transition={{ delay: 2.7 + (i * 0.1) }}
               className="mr-4 text-right"
             >
-              {`console.error("Path not found: ${window ? window.location.pathname : '/unknown'}")`}
+              {`console.error("Path not found: ${currentPath}")`}
             </motion.div>
           ))}
         </motion.div>
